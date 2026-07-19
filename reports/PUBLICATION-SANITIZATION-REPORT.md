@@ -27,7 +27,7 @@ Public files before this report: 143.
 ## Redactions and transformations
 
 - Local absolute paths removed or replaced: 0.
-- Private evidence references removed or generalized: 13.
+- Private evidence references removed or generalized: 8.
 - Credential/trust-boundary detail removed or generalized: 0.
 - Security-sensitive issues converted to minimal public descriptions: 25.
 - Security issue IDs: ATYA-002, ATYA-014, ATYA-015, ATYA-016, ATYA-017, ATYA-018, ATYA-019, ATYA-020, ATYA-024, ATYA-026, ATYA-031, ATYA-097, ATYA-107, ATYA-109, ATYA-113, ATYA-119, ATYA-121, ATYA-124, ATYA-125, ATYA-126, ATYA-127, ATYA-128, ATYA-129, ATYA-130, ATYA-131.

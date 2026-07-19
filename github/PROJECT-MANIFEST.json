@@ -2753,7 +2753,7 @@
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-090-audit-every-private evidence reference",
+      "issue_file": "github/issues/ATYA-090-audit-every-branch-and-default-branch-policy.md",
       "source_eco": null,
       "origin": "Required cleanup target and implementation-program synthesis",
       "cleanup": true,
@@ -2883,7 +2883,7 @@
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-095-audit-rulesets-private evidence reference",
+      "issue_file": "github/issues/ATYA-095-audit-rulesets-branch-protection-and-release-controls.md",
       "source_eco": null,
       "origin": "Required cleanup target and implementation-program synthesis",
       "cleanup": true,
@@ -3078,7 +3078,7 @@
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-102-merge-or-migrate-relevant-private evidence reference",
+      "issue_file": "github/issues/ATYA-102-merge-or-migrate-relevant-branch-work.md",
       "source_eco": null,
       "origin": "Required cleanup target and implementation-program synthesis",
       "cleanup": true,
@@ -3139,7 +3139,7 @@
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-104-enforce-the-master-development-and-default-private evidence reference",
+      "issue_file": "github/issues/ATYA-104-enforce-the-master-development-and-default-branch-policy.md",
       "source_eco": null,
       "origin": "Required cleanup target and implementation-program synthesis",
       "cleanup": true,
@@ -3272,7 +3272,7 @@
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-108-verify-issue-pr-and-private evidence reference",
+      "issue_file": "github/issues/ATYA-108-verify-issue-pr-and-branch-cleanliness.md",
       "source_eco": null,
       "origin": "Required cleanup target and implementation-program synthesis",
       "cleanup": true,
