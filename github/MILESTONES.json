@@ -1,0 +1,65 @@
+[
+  {
+    "title": "Phase 0 — Authoritative inventory and evidence",
+    "description": "Non-blocking reporting milestone. The repository/package manifest is schema-valid; contested findings have evidence; release lineage and all audit scopes are recorded without destructive action.",
+    "state": "open",
+    "task_count": 14,
+    "due_on": null
+  },
+  {
+    "title": "Phase 1 — Source-of-truth policy and architecture decisions",
+    "description": "Non-blocking reporting milestone. All blocking ADRs are accepted, published, and linked; no dependent implementation starts with an unresolved ownership or compatibility question.",
+    "state": "open",
+    "task_count": 11,
+    "due_on": null
+  },
+  {
+    "title": "Phase 2 — Security, compatibility, and release blockers",
+    "description": "Non-blocking reporting milestone. Active disclosure and release-integrity risks are closed with regression tests and documented recovery paths.",
+    "state": "open",
+    "task_count": 19,
+    "due_on": null
+  },
+  {
+    "title": "Phase 3 — Build, workflow, and release consolidation",
+    "description": "Non-blocking reporting milestone. Reusable automation is fixture-tested, immutable, fleet-realized, and continuously audited from one policy source.",
+    "state": "open",
+    "task_count": 21,
+    "due_on": null
+  },
+  {
+    "title": "Phase 4 — Foundation and cross-cutting contracts",
+    "description": "Non-blocking reporting milestone. Canonical Result, time, serialization, validation, HTTP, and compatibility contracts are implemented with migration artifacts and API baselines.",
+    "state": "open",
+    "task_count": 14,
+    "due_on": null
+  },
+  {
+    "title": "Phase 5 — Messaging, data, web, and diagnostics hardening",
+    "description": "Non-blocking reporting milestone. Runtime protocols have explicit semantics, bounded behavior, conformance/scenario coverage, and production-safe defaults.",
+    "state": "open",
+    "task_count": 18,
+    "due_on": null
+  },
+  {
+    "title": "Phase 6 — Migration, documentation, templates, and adoption",
+    "description": "Non-blocking reporting milestone. Golden compositions pass the readiness gate; documentation is executable; templates are extracted only from proven compositions.",
+    "state": "open",
+    "task_count": 22,
+    "due_on": null
+  },
+  {
+    "title": "Phase 7 — Issue, PR, branch, and repository cleanup",
+    "description": "Non-blocking reporting milestone. Audited work is migrated or completed, old artifacts link to replacements, and only verified branch/issue cleanup has occurred.",
+    "state": "open",
+    "task_count": 9,
+    "due_on": null
+  },
+  {
+    "title": "Phase 8 — Final fleet validation and closure",
+    "description": "Non-blocking reporting milestone. Every managed repository is clean, documented, policy-conformant, CI-green, and release-ready, with evidence captured in Atya.Roadmap.",
+    "state": "open",
+    "task_count": 3,
+    "due_on": null
+  }
+]

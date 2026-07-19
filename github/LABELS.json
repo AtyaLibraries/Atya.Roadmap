@@ -1,0 +1,122 @@
+[
+  {
+    "name": "priority:p0",
+    "color": "B60205",
+    "description": "Final plan priority P0"
+  },
+  {
+    "name": "priority:p1",
+    "color": "D93F0B",
+    "description": "Final plan priority P1"
+  },
+  {
+    "name": "priority:p2",
+    "color": "FBCA04",
+    "description": "Final plan priority P2"
+  },
+  {
+    "name": "priority:p3",
+    "color": "0E8A16",
+    "description": "Final plan priority P3"
+  },
+  {
+    "name": "phase:0",
+    "color": "1D76DB",
+    "description": "Authoritative inventory and evidence"
+  },
+  {
+    "name": "phase:1",
+    "color": "1D76DB",
+    "description": "Source-of-truth policy and architecture decisions"
+  },
+  {
+    "name": "phase:2",
+    "color": "1D76DB",
+    "description": "Security, compatibility, and release blockers"
+  },
+  {
+    "name": "phase:3",
+    "color": "1D76DB",
+    "description": "Build, workflow, and release consolidation"
+  },
+  {
+    "name": "phase:4",
+    "color": "1D76DB",
+    "description": "Foundation and cross-cutting contracts"
+  },
+  {
+    "name": "phase:5",
+    "color": "1D76DB",
+    "description": "Messaging, data, web, and diagnostics hardening"
+  },
+  {
+    "name": "phase:6",
+    "color": "1D76DB",
+    "description": "Migration, documentation, templates, and adoption"
+  },
+  {
+    "name": "phase:7",
+    "color": "1D76DB",
+    "description": "Issue, PR, branch, and repository cleanup"
+  },
+  {
+    "name": "phase:8",
+    "color": "1D76DB",
+    "description": "Final fleet validation and closure"
+  },
+  {
+    "name": "type:adr",
+    "color": "5319E7",
+    "description": "ADR task"
+  },
+  {
+    "name": "type:audit",
+    "color": "5319E7",
+    "description": "Audit task"
+  },
+  {
+    "name": "type:cleanup",
+    "color": "5319E7",
+    "description": "Cleanup task"
+  },
+  {
+    "name": "type:documentation",
+    "color": "5319E7",
+    "description": "Documentation task"
+  },
+  {
+    "name": "type:implementation",
+    "color": "5319E7",
+    "description": "Implementation task"
+  },
+  {
+    "name": "type:migration",
+    "color": "5319E7",
+    "description": "Migration task"
+  },
+  {
+    "name": "type:verification",
+    "color": "5319E7",
+    "description": "Verification task"
+  },
+  {
+    "name": "status:ready",
+    "color": "0E8A16",
+    "description": "Initial ready state"
+  },
+  {
+    "name": "status:blocked",
+    "color": "BFD4F2",
+    "description": "Initial blocked state"
+  },
+  {
+    "name": "evidence:requires-verification",
+    "color": "FEF2C0",
+    "description": "Evidence must be refreshed before mutation"
+  },
+  {
+    "name": "program:ecosystem-modernization",
+    "color": "0052CC",
+    "description": "AtyaLibraries ecosystem modernization program"
+  }
+]
