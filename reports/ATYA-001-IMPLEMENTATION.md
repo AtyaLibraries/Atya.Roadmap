@@ -10,7 +10,7 @@ ATYA-001 establishes `AtyaLibraries/platform` as the ecosystem policy authority.
 - Deterministic generation: `platform/scripts/Generate-EcosystemConsumers.ps1`
 - CI and regression coverage: `platform/.github/workflows/ecosystem-manifest.yml` and `platform/tests/Test-Ecosystem.ps1`
 
-The initial manifest records all 37 live organization repositories, 31 unique package identities (including the non-published SDK probe), repository archetype and lifecycle, visibility, default branch, package lifecycle/tier, target frameworks, Build SDK pins, allowed internal dependency edges, policy version, and immutable fleet pins.
+The initial manifest records all 37 live organization repositories, 31 unique package identities (including the non-published SDK probe), and 23 retained PARK/CUT non-repository portfolio decisions. It covers repository archetype and lifecycle, visibility, default branch, package lifecycle/tier/purpose/publishing route, target frameworks, Build SDK pins, allowed internal dependency edges, policy version, and immutable fleet pins.
 
 ## Generated consumers
 
