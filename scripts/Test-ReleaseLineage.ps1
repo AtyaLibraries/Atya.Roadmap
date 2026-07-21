@@ -9,6 +9,8 @@ param(
 
     [string] $DevelopmentRef = 'origin/development',
     [string] $ReleaseRef = 'origin/master',
+
+    [Parameter(Mandatory)]
     [string] $StableTag,
     [string] $ExpectedSdk,
     [string] $ExpectedBuildSdk
@@ -29,7 +31,7 @@ if (-not (Test-Path -LiteralPath $RepositoryPath -PathType Container)) {
 $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryPath).Path
 Assert-SafeGitRef $DevelopmentRef 'DevelopmentRef'
 Assert-SafeGitRef $ReleaseRef 'ReleaseRef'
-if ($StableTag) { Assert-SafeGitRef $StableTag 'StableTag' }
+Assert-SafeGitRef $StableTag 'StableTag'
 
 function Invoke-Git([string[]] $Arguments, [switch] $AllowFailure) {
     $output = & git -C $resolvedRepository @Arguments 2>&1
@@ -45,16 +47,8 @@ $developmentTree = (Invoke-Git @('rev-parse', "$DevelopmentRef`^{tree}")).Output
 $releaseTree = (Invoke-Git @('rev-parse', "$ReleaseRef`^{tree}")).Output
 $treeParity = $developmentTree -eq $releaseTree
 
-if (-not $StableTag) {
-    $tags = (Invoke-Git @('tag', '--merged', $ReleaseRef, '--list', 'v[0-9]*', '--sort=-version:refname')).Output -split "`n"
-    $StableTag = $tags | Where-Object { $_ -and $_ -notmatch '-' } | Select-Object -First 1
-}
-
-$tagAncestor = $false
-if ($StableTag) {
-    $tagCommit = (Invoke-Git @('rev-list', '-n', '1', $StableTag)).Output
-    $tagAncestor = (Invoke-Git @('merge-base', '--is-ancestor', $tagCommit, $DevelopmentRef) -AllowFailure).ExitCode -eq 0
-}
+$tagCommit = (Invoke-Git @('rev-list', '-n', '1', $StableTag)).Output
+$tagAncestor = (Invoke-Git @('merge-base', '--is-ancestor', $tagCommit, $DevelopmentRef) -AllowFailure).ExitCode -eq 0
 
 $releasedPinsConform = $true
 $pinDiagnostics = @()
@@ -82,7 +76,7 @@ $result = [ordered]@{
     passed = $passed
     treeParity = $treeParity
     treeParityRequired = $treeRequired
-    stableTagPresent = [bool]$StableTag
+    stableTagPresent = $true
     stableTagAncestorOfDevelopment = $tagAncestor
     releasedPinsConform = $releasedPinsConform
     diagnostics = $pinDiagnostics

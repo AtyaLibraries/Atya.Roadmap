@@ -2,9 +2,9 @@ $ErrorActionPreference = 'Stop'
 $sut = Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts/Test-ReleaseLineage.ps1'
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
 
-function Invoke-Check([string] $Mode, [int] $ExpectedExit) {
+function Invoke-Check([string] $Mode, [int] $ExpectedExit, [string[]] $ExtraArguments = @()) {
     $pwsh = Join-Path $PSHOME 'pwsh.exe'
-    & $pwsh -NoProfile -File $sut -Mode $Mode -RepositoryPath $fixture -DevelopmentRef development -ReleaseRef master -StableTag v1.0.0 | Out-Null
+    & $pwsh -NoProfile -File $sut -Mode $Mode -RepositoryPath $fixture -DevelopmentRef development -ReleaseRef master -StableTag v1.0.0 @ExtraArguments | Out-Null
     if ($LASTEXITCODE -ne $ExpectedExit) { throw "$Mode returned $LASTEXITCODE; expected $ExpectedExit." }
 }
 
@@ -13,7 +13,8 @@ try {
     git -C $fixture config user.name 'ATYA contract fixture'
     git -C $fixture config user.email 'fixture@example.invalid'
     Set-Content -LiteralPath (Join-Path $fixture 'value.txt') -Value 'release'
-    git -C $fixture add value.txt
+    Set-Content -LiteralPath (Join-Path $fixture 'global.json') -Value '{"sdk":{"version":"10.0.300"},"msbuild-sdks":{"Atya.Build.Sdk":"1.5.2"}}'
+    git -C $fixture add value.txt global.json
     git -C $fixture commit --quiet -m release
     git -C $fixture branch master
     git -C $fixture branch development
@@ -26,6 +27,11 @@ try {
     git -C $fixture commit --quiet -am development
     Invoke-Check ReleaseTime 1
     Invoke-Check Retrospective 0
+    Invoke-Check Retrospective 1 @('-ExpectedSdk', '10.0.301', '-ExpectedBuildSdk', '1.5.2')
+
+    $pwsh = Join-Path $PSHOME 'pwsh.exe'
+    & $pwsh -NoProfile -File $sut -Mode Retrospective -RepositoryPath $fixture -DevelopmentRef '../unsafe' -ReleaseRef master -StableTag v1.0.0 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'Unsafe development ref unexpectedly passed.' }
 
     git -C $fixture switch --quiet --orphan detached-release
     git -C $fixture rm --quiet -rf --ignore-unmatch .

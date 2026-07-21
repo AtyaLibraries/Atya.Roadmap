@@ -19,6 +19,8 @@ The release contract has two modes:
 1. **Release-time wrap-up.** The approved release and development trees must be equal, the newest public stable tag must be an ancestor of `development`, and the released tree must use the approved SDK and Build SDK pins.
 2. **Retrospective verification.** Development may have advanced, so tree inequality is diagnostic rather than a failure. Stable-tag ancestry and released-pin conformance remain required.
 
+The verifier receives the newest public stable tag from the authoritative remote measurement. It never infers public provenance from untrusted or local-only tags.
+
 A reconciliation must preserve every commit unique to either long-lived branch. It is performed through protected pull requests and reviewed merge commits; published tags and packages are immutable. Promotion and merge-back are separate reviewable operations when both are needed.
 
 ## Rationale
