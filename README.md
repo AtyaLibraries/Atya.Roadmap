@@ -14,5 +14,7 @@ The content is a sanitized publication derived from the private maintainer plann
 - [Issue specifications](./github/issues/README.md)
 - [Publication sanitization report](./reports/PUBLICATION-SANITIZATION-REPORT.md)
 - [ATYA-001 implementation evidence](./reports/ATYA-001-IMPLEMENTATION.md)
+- [ADR-09: release-lineage strategy](./docs/ADR-09-release-lineage-strategy.md)
+- [ATYA-003 implementation evidence](./reports/ATYA-003-IMPLEMENTATION.md)
 
 Security-sensitive issues contain only minimal public remediation summaries. Authorized maintainers use the listed private evidence reference to retrieve details through the private organization process.
