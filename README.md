@@ -17,5 +17,6 @@ The content is a sanitized publication derived from the private maintainer plann
 - [ADR-09: release-lineage strategy](./docs/ADR-09-release-lineage-strategy.md)
 - [ATYA-003 implementation evidence](./reports/ATYA-003-IMPLEMENTATION.md)
 - [ATYA-014 implementation evidence](./reports/ATYA-014-IMPLEMENTATION.md)
+- [ATYA-016 implementation evidence](./reports/ATYA-016-IMPLEMENTATION.md)
 
 Security-sensitive issues contain only minimal public remediation summaries. Authorized maintainers use the listed private evidence reference to retrieve details through the private organization process.
