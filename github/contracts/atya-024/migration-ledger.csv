@@ -1,0 +1,5 @@
+"Scope","Expected","ContractValidated","WorkflowChanged","NoOpProved","LiveProved","LegacyCredentialRemoved","State","NextGate"
+"source-workflows","29","29","0","0","0","0","Not started","Approve credential-placement architecture"
+"publisher-targets","1","1","0","0","0","0","Not started","Register and install the approved App"
+"failed-dispatch-migrations","4","4","0","0","0","0","Tracked independently","Complete ATYA-024 before ATYA-127 through ATYA-130"
+"dispatch-event-types","1","1","0","0","0","0","Preserved","Keep publish-package as the only event contract"

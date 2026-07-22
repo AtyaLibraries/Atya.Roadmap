@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "task": "ATYA-024",
+  "decisionStatus": "organization-owner-decision-required",
+  "application": {
+    "name": "Atya Publisher Dispatch",
+    "owner": "AtyaLibraries",
+    "homepageUrl": "https://github.com/AtyaLibraries/Atya.Roadmap",
+    "description": "Dispatch-only installation identity for the central package publisher.",
+    "visibility": "private",
+    "installationScope": "only-this-account",
+    "oauth": {
+      "callbackUrls": [],
+      "requestUserAuthorizationDuringInstallation": false,
+      "deviceFlow": false,
+      "clientSecretRequired": false
+    },
+    "setupUrl": null,
+    "webhook": {
+      "active": false,
+      "url": null,
+      "events": []
+    }
+  },
+  "permissions": {
+    "repository": {
+      "contents": "write",
+      "metadata": "read"
+    },
+    "organization": {}
+  },
+  "installation": {
+    "account": "AtyaLibraries",
+    "repositorySelection": "selected",
+    "repositoryRoles": [
+      "publisher"
+    ],
+    "repositoryCount": 1
+  },
+  "token": {
+    "repositoryRoles": [
+      "publisher"
+    ],
+    "repositoryCount": 1,
+    "permissions": {
+      "contents": "write"
+    },
+    "maximumLifetimeSeconds": 3600,
+    "retention": "memory-only-until-dispatch-response"
+  },
+  "credentials": {
+    "privateKey": {
+      "recommendedPlacement": "external-managed-key-vault-sign-only",
+      "githubActionsSecret": false,
+      "runnerReadable": false,
+      "exportableAfterImport": false,
+      "decisionApproved": false
+    },
+    "clientId": {
+      "sensitive": false,
+      "recommendedPlacement": "broker-service-configuration"
+    }
+  },
+  "prohibited": [
+    "installation-on-source-repositories",
+    "organization-wide-repository-selection",
+    "private-key-in-organization-actions-secret",
+    "private-key-in-source-repository-secret",
+    "private-key-in-source-repository-environment",
+    "token-returned-to-source-workflow",
+    "pat-fallback"
+  ]
+}

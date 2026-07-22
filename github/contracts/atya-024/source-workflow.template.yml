@@ -1,0 +1,47 @@
+name: Request central package publication
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  dispatch:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Exchange GitHub OIDC identity for a dispatch decision
+        shell: bash
+        env:
+          BROKER_URL: ${{ vars.ATYA_DISPATCH_BROKER_URL }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_REPOSITORY_ID: ${{ github.repository_id }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "${BROKER_URL}"
+          oidc_response="$(curl --fail-with-body --silent --show-error \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=atya-publisher-dispatch")"
+          oidc_token="$(jq -er '.value' <<<"${oidc_response}")"
+          jq -n \
+            --arg repository "${SOURCE_REPOSITORY}" \
+            --arg repository_id "${SOURCE_REPOSITORY_ID}" \
+            --arg ref "${SOURCE_REF}" \
+            --arg sha "${SOURCE_SHA}" \
+            '{source_repository: $repository, source_repository_id: $repository_id, source_ref: $ref, source_sha: $sha}' |
+            curl --fail-with-body --silent --show-error \
+              -H "Authorization: Bearer ${oidc_token}" \
+              -H "Content-Type: application/json" \
+              --data-binary @- \
+              "${BROKER_URL}/v1/dispatch-requests"
+
+# This is a migration template, not an active workflow. Package identity,
+# correlation ID, dry-run policy, and the immutable workflow identity are added
+# by the approved generator after the credential-placement decision.
