@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
   "task": "ATYA-024",
-  "decisionStatus": "organization-owner-decision-required",
+  "decisionStatus": "approved-for-implementation-deployment-pending",
+  "architecture": {
+    "provider": "Microsoft Azure",
+    "brokerRuntime": "Azure Function",
+    "keyCustody": "Azure Key Vault",
+    "runtimeIdentity": "Azure managed identity",
+    "serviceOwner": "AtyaLibraries/platform",
+    "accountableHumanOwner": "aasulyan",
+    "approved": true,
+    "deploymentPending": true
+  },
   "application": {
     "name": "Atya Publisher Dispatch",
     "owner": "AtyaLibraries",
@@ -54,13 +64,22 @@
       "githubActionsSecret": false,
       "runnerReadable": false,
       "exportableAfterImport": false,
-      "decisionApproved": false
+      "decisionApproved": true
     },
     "clientId": {
       "sensitive": false,
       "recommendedPlacement": "broker-service-configuration"
     }
   },
+  "unconfirmedDeploymentInputs": [
+    "azure-subscription",
+    "azure-tenant",
+    "azure-region",
+    "resource-group",
+    "resource-names",
+    "deployment-identity",
+    "billing-approval"
+  ],
   "prohibited": [
     "installation-on-source-repositories",
     "organization-wide-repository-selection",

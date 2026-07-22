@@ -43,27 +43,26 @@
     "allowedFields": [
       "schema_version",
       "source_repository_id",
-      "source_repository",
       "source_ref",
       "source_sha",
-      "package_id",
       "dry_run",
-      "correlation_id"
+      "correlation_id",
+      "idempotency_key"
     ],
     "requiredFields": [
       "schema_version",
       "source_repository_id",
-      "source_repository",
       "source_ref",
       "source_sha",
-      "package_id",
       "dry_run",
-      "correlation_id"
+      "correlation_id",
+      "idempotency_key"
     ],
     "rejectUnknownFields": true,
     "sourceShaPattern": "^[0-9a-f]{40}$",
-    "packageIdPattern": "^Atya\\.[A-Za-z0-9.]{1,120}$",
-    "correlationIdPattern": "^[0-9a-f]{32}$"
+    "correlationIdPattern": "^[0-9a-f]{32}$",
+    "idempotencyKeyPattern": "^[0-9a-z-]{64}$",
+    "packageIdentitySource": "private-server-side-source-policy"
   },
   "broker": {
     "privateKeyOperation": "vault-sign-only",

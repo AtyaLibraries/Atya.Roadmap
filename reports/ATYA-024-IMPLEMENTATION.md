@@ -2,7 +2,7 @@
 
 Date: 2026-07-22
 
-Status: In Progress; manual architecture checkpoint
+Status: In Progress; architecture approved, deployment pending
 
 ## Sanitized evidence result
 
@@ -20,16 +20,17 @@ No private path, repository work list, raw diagnostic, run payload, secret metad
 - Safe no-op proof stages
 - Sanitized aggregate migration ledger
 - Migration, rotation, revocation, rollback, and compromise-recovery procedures
+- Reviewable Azure Function broker, managed-identity adapters, synthetic security suite, and deployment-only Bicep plan in the designated platform repository
 
 ## Scope boundary
 
 No App was registered or installed. No key was generated or downloaded. No variable or secret was created or changed. No App token was minted. No source workflow was changed. No PAT, tag, package, release, or dispatch was mutated. The four downstream migrations remain unstarted.
 
-## Remaining decision
+## Approved decision and remaining deployment inputs
 
-The repository-dispatch endpoint requires Contents write, so installing one App across every source repository would exceed least privilege. The recommended contract installs the App only on the publisher target and keeps its key in an external sign-only managed key vault used by an OIDC-authenticated broker.
+The repository-dispatch endpoint requires Contents write, so installing one App across every source repository would exceed least privilege. The approved contract installs the App only on the publisher target and uses an Azure Function broker with an Azure Key Vault non-exportable sign/verify-only key, Azure managed identity, `AtyaLibraries/platform` as service owner, and `aasulyan` as accountable human owner.
 
-The evidence does not prove that the required broker and vault exist. The organization owner must approve this placement and name its accountable service owner, or provide an equivalent non-runner-readable signing service for review. Issue #17 remains open and In Progress until that decision and the later manual checkpoints are completed.
+Azure subscription, tenant, region, resource group, resource names, deployment identity, and billing approval remain unconfirmed. Issue #17 remains open and In Progress while the platform implementation and deployment plan are reviewed. No deployment or live credential operation is authorized.
 
 ## Validation
 
@@ -39,3 +40,6 @@ The evidence does not prove that the required broker and vault exist. The organi
 - YAML parsing and linting: passed.
 - Private implementation-plan validator: passed without changing the private plan.
 - Git whitespace and patch checks: passed.
+- .NET 10 release build and 19 synthetic broker security tests: passed with zero warnings and zero failures.
+- Bicep static build and lint: passed without diagnostics; no Azure what-if or deployment was run.
+- NuGet transitive vulnerability check: no known vulnerable packages reported by the configured sources.

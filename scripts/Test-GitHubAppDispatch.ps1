@@ -47,7 +47,15 @@ $dispatch = Read-JsonFile (Join-Path $contractRoot 'dispatch-contract.json')
 
 Assert-Equal $registration.schemaVersion 1 'Registration schema version is unsupported.'
 Assert-Equal $registration.task 'ATYA-024' 'Registration belongs to the wrong task.'
-Assert-Equal $registration.decisionStatus 'organization-owner-decision-required' 'The architecture decision must remain explicit.'
+Assert-Equal $registration.decisionStatus 'approved-for-implementation-deployment-pending' 'The approved architecture state changed.'
+Assert-Equal $registration.architecture.provider 'Microsoft Azure' 'The approved cloud provider changed.'
+Assert-Equal $registration.architecture.brokerRuntime 'Azure Function' 'The approved broker runtime changed.'
+Assert-Equal $registration.architecture.keyCustody 'Azure Key Vault' 'The approved key custodian changed.'
+Assert-Equal $registration.architecture.runtimeIdentity 'Azure managed identity' 'The approved runtime identity changed.'
+Assert-Equal $registration.architecture.serviceOwner 'AtyaLibraries/platform' 'The approved service owner changed.'
+Assert-Equal $registration.architecture.accountableHumanOwner 'aasulyan' 'The accountable owner changed.'
+Assert-Equal $registration.architecture.approved $true 'Architecture approval must be explicit.'
+Assert-Equal $registration.architecture.deploymentPending $true 'Deployment must remain pending.'
 Assert-Equal $registration.application.visibility 'private' 'The App must be private.'
 Assert-Equal $registration.application.installationScope 'only-this-account' 'The App must be installable only on its owning account.'
 Assert-Equal $registration.application.webhook.active $false 'Webhooks are not part of the selected broker contract.'
@@ -72,8 +80,9 @@ Assert-Equal $registration.credentials.privateKey.recommendedPlacement 'external
 Assert-Equal $registration.credentials.privateKey.githubActionsSecret $false 'The private key must not be an Actions secret.'
 Assert-Equal $registration.credentials.privateKey.runnerReadable $false 'The private key must not be runner-readable.'
 Assert-Equal $registration.credentials.privateKey.exportableAfterImport $false 'The imported key must be non-exportable.'
-Assert-Equal $registration.credentials.privateKey.decisionApproved $false 'Owner approval must not be implied before the checkpoint.'
+Assert-Equal $registration.credentials.privateKey.decisionApproved $true 'The owner-approved placement must be recorded.'
 Assert-Equal $registration.credentials.clientId.sensitive $false 'Client ID classification changed unexpectedly.'
+Assert-Equal @($registration.unconfirmedDeploymentInputs).Count 7 'The deployment prerequisites changed.'
 
 Assert-Equal $dispatch.schemaVersion 1 'Dispatch schema version is unsupported.'
 Assert-Equal $dispatch.topology.sourceWorkflowCount 29 'The source-workflow count changed.'
@@ -91,6 +100,11 @@ Assert-Equal $dispatch.broker.privateKeyOperation 'vault-sign-only' 'The broker 
 Assert-Equal $dispatch.broker.installationTokenVisibleToSource $false 'The installation token must remain broker-side.'
 Assert-Equal $dispatch.broker.installationRepositoryCount 1 'Installation tokens must be scoped to one repository.'
 Assert-True ($dispatch.payload.maximumBytes -le 4096) 'The dispatch payload bound is too large.'
+$expectedPayloadFields = @('schema_version', 'source_repository_id', 'source_ref', 'source_sha', 'dry_run', 'correlation_id', 'idempotency_key')
+Assert-Equal ((@($dispatch.payload.allowedFields) -join ',')) ($expectedPayloadFields -join ',') 'The caller-controlled payload fields changed.'
+Assert-Equal ((@($dispatch.payload.requiredFields) -join ',')) ($expectedPayloadFields -join ',') 'The required payload fields changed.'
+Assert-Equal $dispatch.payload.packageIdentitySource 'private-server-side-source-policy' 'Package authorization must remain server-side.'
+Assert-Equal $dispatch.payload.idempotencyKeyPattern '^[0-9a-z-]{64}$' 'The idempotency key contract changed.'
 
 $ledger = @(Import-Csv -LiteralPath (Join-Path $contractRoot 'migration-ledger.csv'))
 Assert-Equal $ledger.Count 4 'The sanitized migration ledger must contain four aggregate scopes.'

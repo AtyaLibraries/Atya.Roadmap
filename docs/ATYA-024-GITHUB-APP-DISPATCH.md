@@ -4,7 +4,7 @@
 
 ATYA-024 is In Progress. Its evidence and live topology agree on 29 source workflows, one publisher target, one `publish-package` event, four independently tracked failed-dispatch migrations, and permanent replacement of the shared PAT. No source workflow, credential, App, installation, token, tag, or publication has been changed.
 
-The registration contract is complete, but credential placement requires an organization-owner architecture decision. GitHub's [repository-dispatch endpoint](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event) requires Contents write; it does not offer a narrower App permission named “dispatch.” Installing that permission across source repositories would violate least privilege.
+The organization owner approved Microsoft Azure as the implementation platform: an Azure Function broker, Azure Key Vault custody, non-exportable sign/verify-only RSA key use, Azure managed identity, `AtyaLibraries/platform` as service owner, and `aasulyan` as accountable human owner. Implementation is approved; deployment remains pending. GitHub's [repository-dispatch endpoint](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event) requires Contents write; it does not offer a narrower App permission named “dispatch.” Installing that permission across source repositories would violate least privilege.
 
 ## Exact sanitized registration specification
 
@@ -34,7 +34,7 @@ Store the downloaded private key in an external managed key vault as a non-expor
 
 Store the non-secret client ID in the broker service’s ordinary deployment configuration. A client secret is unnecessary because the design does not use OAuth user authorization.
 
-The evidence bundle establishes the security requirement, but not the existence or owner of a managed broker and key vault. Registration, installation, key generation, and placement therefore remain behind the manual checkpoint.
+The architecture decision establishes the provider and owners, but Azure subscription, tenant, region, resource group, resource names, deployment identity, and billing approval remain unconfirmed deployment inputs. Registration, installation, key generation, key import, deployment, and live probing remain behind later manual checkpoints.
 
 ## Why branch and pull-request workflows cannot access the key
 
@@ -55,9 +55,9 @@ This proof does not claim that GitHub Actions secrets are branch-isolated. GitHu
 
 ## Canonical migration mechanism
 
-[`source-workflow.template.yml`](../github/contracts/atya-024/source-workflow.template.yml) is a non-active migration template. It replaces the shared PAT with `id-token: write`, obtains a GitHub OIDC identity, and submits a bounded request to the broker. The broker alone mints and consumes the App installation token.
+[`source-workflow.template.yml`](../github/contracts/atya-024/source-workflow.template.yml) is a non-active, dry-run-default migration template. It replaces the shared PAT with `id-token: write`, obtains a GitHub OIDC identity, and submits a bounded idempotent request to the broker. The caller cannot supply package identity, target repository, event type, installation, or permissions; the broker reconstructs them from private source policy and alone mints and consumes the App installation token.
 
-The generator must fill package identity, correlation ID, dry-run policy, and immutable workflow identity only after the architecture decision. ATYA-127 through ATYA-130 retain ownership of their four source migrations. The public [`migration-ledger.csv`](../github/contracts/atya-024/migration-ledger.csv) records only sanitized aggregate counts; the private repository mapping remains outside this repository.
+The generator may enable non-dry-run behavior and pin immutable workflow identity only after the applicable downstream checkpoint. ATYA-127 through ATYA-130 retain ownership of their four source migrations. The public [`migration-ledger.csv`](../github/contracts/atya-024/migration-ledger.csv) records only sanitized aggregate counts; the private repository mapping remains outside this repository.
 
 `Test-GitHubAppDeploymentScope.ps1` validates a private deployment export without printing repository names or numeric identities. It requires exactly 29 unique source IDs in the broker allowlist, exactly one separately identified publisher installation, selected-repository installation, Contents write plus Metadata read, and no organization permissions. The committed input is synthetic; a live export remains behind the checkpoint.
 
@@ -84,14 +84,14 @@ Before PAT removal, rollback disables the source OIDC path and restores the unch
 
 For suspected compromise: disable broker dispatch, revoke active installation tokens where possible, generate and import a replacement key, delete the compromised App key, review App and organization audit events, verify the publisher and source bindings, and resume only from the no-op gates. If the App registration itself is compromised, suspend or uninstall it and require a new owner-approved registration.
 
-## Architecture decision request
+## Approved architecture and deployment boundary
 
-The organization owner must choose one of these placement models before registration:
+The approved placement comparison is retained as the decision record:
 
 | Alternative | Branch/PR key isolation | Operational cost | Decision |
 | --- | --- | --- | --- |
-| External broker plus sign-only managed key vault | Strong: no Actions workflow or runner can read the key; OIDC claims are policy inputs only | Requires owned broker/vault service and incident operations | Recommended |
+| Azure Function broker plus Azure Key Vault sign-only key | Strong: no Actions workflow or runner can read the key; OIDC claims are policy inputs only | Requires approved Azure deployment inputs and incident operations | Approved; deployment pending |
 | Dedicated broker repository with an environment secret | Incomplete: protection depends on repository/environment administration and runner trust; key remains runner-readable | Lower infrastructure cost | Reject unless an independently reviewed control proves equivalent isolation |
 | Organization or per-source Actions secrets | Weak: broad workflow access, replicated key material, and manual onboarding/rotation | Superficially simple, high security debt | Rejected |
 
-The exact next action is a single organization-owner decision: approve the external OIDC broker plus sign-only managed-key-vault placement and name its accountable service owner, or reject it and provide an equivalent non-runner-readable signing service for review. Do not register the App as part of that decision.
+No Azure resource may be provisioned until the unconfirmed deployment inputs are supplied and the implementation/plan evidence is accepted. App registration, installation, private-key generation/import, secret or variable creation, and every live probe require later approval.

@@ -59,7 +59,7 @@ Advisory prerequisites: None
 
 ## Implementation checkpoint
 
-Discovery and the sanitized contract package are recorded in [the ATYA-024 implementation report](../../reports/ATYA-024-IMPLEMENTATION.md). Registration remains paused pending the documented organization-owner decision on non-runner-readable private-key placement. This checkpoint does not start the downstream source migrations.
+Discovery and the sanitized contract package are recorded in [the ATYA-024 implementation report](../../reports/ATYA-024-IMPLEMENTATION.md). The organization owner approved the Azure Function and Azure Key Vault architecture; deployment and every credential operation remain paused pending the documented prerequisites and later checkpoint. This does not start the downstream source migrations.
 
 ## Standalone implementation prompt
 

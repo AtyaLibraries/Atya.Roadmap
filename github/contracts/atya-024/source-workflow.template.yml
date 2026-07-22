@@ -19,10 +19,10 @@ jobs:
         shell: bash
         env:
           BROKER_URL: ${{ vars.ATYA_DISPATCH_BROKER_URL }}
-          SOURCE_REPOSITORY: ${{ github.repository }}
           SOURCE_REPOSITORY_ID: ${{ github.repository_id }}
           SOURCE_REF: ${{ github.ref }}
           SOURCE_SHA: ${{ github.sha }}
+          DRY_RUN: "true"
         run: |
           set -euo pipefail
           test -n "${BROKER_URL}"
@@ -30,18 +30,22 @@ jobs:
             -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=atya-publisher-dispatch")"
           oidc_token="$(jq -er '.value' <<<"${oidc_response}")"
+          correlation_id="$(tr -d '-' </proc/sys/kernel/random/uuid)"
+          idempotency_key="$(printf '%s\0%s\0%s' "${SOURCE_REPOSITORY_ID}" "${SOURCE_REF}" "${SOURCE_SHA}" | sha256sum | cut -d' ' -f1)"
           jq -n \
-            --arg repository "${SOURCE_REPOSITORY}" \
-            --arg repository_id "${SOURCE_REPOSITORY_ID}" \
+            --argjson repository_id "${SOURCE_REPOSITORY_ID}" \
             --arg ref "${SOURCE_REF}" \
             --arg sha "${SOURCE_SHA}" \
-            '{source_repository: $repository, source_repository_id: $repository_id, source_ref: $ref, source_sha: $sha}' |
+            --argjson dry_run "${DRY_RUN}" \
+            --arg correlation_id "${correlation_id}" \
+            --arg idempotency_key "${idempotency_key}" \
+            '{schema_version: 1, source_repository_id: $repository_id, source_ref: $ref, source_sha: $sha, dry_run: $dry_run, correlation_id: $correlation_id, idempotency_key: $idempotency_key}' |
             curl --fail-with-body --silent --show-error \
               -H "Authorization: Bearer ${oidc_token}" \
               -H "Content-Type: application/json" \
               --data-binary @- \
-              "${BROKER_URL}/v1/dispatch-requests"
+              "${BROKER_URL}/api/v1/publisher-dispatch"
 
-# This is a migration template, not an active workflow. Package identity,
-# correlation ID, dry-run policy, and the immutable workflow identity are added
-# by the approved generator after the credential-placement decision.
+# This is a migration template, not an active workflow. It is deliberately
+# dry-run-only until a downstream migration receives separate approval. Package
+# identity and immutable workflow authorization are broker-side private policy.
