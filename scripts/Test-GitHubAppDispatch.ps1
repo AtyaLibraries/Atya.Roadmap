@@ -7,7 +7,10 @@ param(
     [string] $RegistrationPath,
 
     [Parameter()]
-    [switch] $SkipSanitization
+    [switch] $SkipSanitization,
+
+    [Parameter()]
+    [string] $SanitizationRoot
 )
 
 Set-StrictMode -Version Latest
@@ -35,6 +38,46 @@ function Read-JsonFile {
     catch {
         throw "Invalid JSON: $Path. $($_.Exception.Message)"
     }
+}
+
+function Test-PublicActionsIdentifierLink {
+    param(
+        [Parameter(Mandatory)]
+        [string] $Text,
+
+        [Parameter(Mandatory)]
+        [Text.RegularExpressions.Match] $IdentifierMatch
+    )
+
+    $linkPattern = [regex]::new(
+        '\[(?<label>[^\]\r\n]+)\]\((?<url>https://github\.com/AtyaLibraries/(?<repository>(?!\.{1,2}/)[A-Za-z0-9_.-]+)/actions/runs/(?<runId>[1-9][0-9]*)(?:/job/(?<jobId>[1-9][0-9]*))?)\)',
+        [Text.RegularExpressions.RegexOptions]::CultureInvariant
+    )
+
+    foreach ($linkMatch in $linkPattern.Matches($Text)) {
+        $label = $linkMatch.Groups['label']
+        $identifierEnd = $IdentifierMatch.Index + $IdentifierMatch.Length
+        $labelEnd = $label.Index + $label.Length
+        if ($IdentifierMatch.Index -lt $label.Index -or $identifierEnd -gt $labelEnd) {
+            continue
+        }
+
+        $identifier = $IdentifierMatch.Groups['identifier'].Value
+        switch ($IdentifierMatch.Groups['kind'].Value) {
+            'run' {
+                if ($identifier -ceq $linkMatch.Groups['runId'].Value) {
+                    return $true
+                }
+            }
+            'job' {
+                if ($linkMatch.Groups['jobId'].Success -and $identifier -ceq $linkMatch.Groups['jobId'].Value) {
+                    return $true
+                }
+            }
+        }
+    }
+
+    return $false
 }
 
 $contractRoot = Join-Path $RepositoryRoot 'github/contracts/atya-024'
@@ -138,26 +181,38 @@ foreach ($fixturePath in Get-ChildItem -File -Filter '*.json' -LiteralPath (Join
 }
 
 if (-not $SkipSanitization) {
+    if (-not $SanitizationRoot) {
+        $SanitizationRoot = $RepositoryRoot
+    }
+    $resolvedSanitizationRoot = (Resolve-Path -LiteralPath $SanitizationRoot).Path
     $publishableExtensions = @('.md', '.json', '.csv', '.yml', '.yaml', '.ps1')
-    $files = Get-ChildItem -Recurse -File -LiteralPath $RepositoryRoot |
+    $files = Get-ChildItem -Recurse -File -LiteralPath $resolvedSanitizationRoot |
         Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' -and $publishableExtensions -contains $_.Extension }
     # Build signatures from fragments so this validator does not flag its own source.
     $privateRootSignature = 'Atya ' + 'Analyze'
     $privateAuditSignature = [regex]::Escape('repository' + '-audit')
     $privateKeySignature = '-----BEGIN ' + '(?:RSA )?' + 'PRIVATE KEY-----'
     $githubTokenSignature = '(?:gh' + '[opurs]_|github' + '_pat_)[A-Za-z0-9_]+'
-    $auditRunSignature = '(?:r' + 'un|j' + 'ob)\s+[0-9]{8,}'
+    $auditIdentifierPattern = [regex]::new(
+        '(?<kind>r' + 'un|j' + 'ob)\s+(?<identifier>[0-9]{8,})',
+        [Text.RegularExpressions.RegexOptions]::CultureInvariant
+    )
     $prohibitedPatterns = [ordered]@{
         private_path = "$privateRootSignature|$privateAuditSignature"
         private_key = $privateKeySignature
         github_token = $githubTokenSignature
-        audit_run_identifier = $auditRunSignature
     }
     foreach ($file in $files) {
         $text = Get-Content -Raw -LiteralPath $file.FullName
+        $relativePath = [IO.Path]::GetRelativePath($resolvedSanitizationRoot, $file.FullName).Replace('\', '/')
         foreach ($entry in $prohibitedPatterns.GetEnumerator()) {
             if ($text -match $entry.Value) {
-                throw "Sanitization failure '$($entry.Key)' in $($file.FullName)."
+                throw "Sanitization failure '$($entry.Key)' in '$relativePath'."
+            }
+        }
+        foreach ($identifierMatch in $auditIdentifierPattern.Matches($text)) {
+            if (-not (Test-PublicActionsIdentifierLink -Text $text -IdentifierMatch $identifierMatch)) {
+                throw "Sanitization failure 'audit_run_identifier' in '$relativePath'."
             }
         }
     }
