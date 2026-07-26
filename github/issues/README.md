@@ -1,6 +1,6 @@
 # Public AtyaLibraries roadmap issue specifications
 
-All 148 task IDs are represented (ATYA-001..131 from the original consolidated plan; ATYA-132..148 added by the Opus 5 delta review, 2026-07-26). Security-sensitive entries are intentionally minimized and point to private maintainer evidence references.
+All 149 task IDs are represented (ATYA-001..131 from the original consolidated plan; ATYA-132..148 added by the Opus 5 delta review, 2026-07-26; ATYA-149 added by the ATYA-024 scope split, 2026-07-27). Security-sensitive entries are intentionally minimized and point to private maintainer evidence references.
 
 | ID | Title | Repository | Priority | Phase | Initial status |
 |---|---|---|---|---:|---|
@@ -27,7 +27,7 @@ All 148 task IDs are represented (ATYA-001..131 from the original consolidated p
 | [ATYA-021](./ATYA-021-make-backgroundservices-consume-per-worker-validated-options.md) | Make BackgroundServices consume per-worker validated options | BackgroundServices | P1 | 2 | Blocked |
 | [ATYA-022](./ATYA-022-unify-correlation-one-owner-bounded-policy-wired-end-to-end.md) | Unify correlation: one owner, bounded policy, wired end-to-end | Atya.Roadmap | P1 | 2 | Blocked |
 | [ATYA-023](./ATYA-023-harden-http-client-protocol-and-payload-handling.md) | Harden Http.Client protocol and payload handling | Client | P1 | 2 | Blocked |
-| [ATYA-024](./ATYA-024-replace-the-pat-dispatch-chain-with-a-github-app.md) | Replace the PAT dispatch chain with a GitHub App | Atya.Roadmap | P0 | 2 | Blocked |
+| [ATYA-024](./ATYA-024-design-and-build-the-github-app-dispatch-broker.md) | Design and build the GitHub App dispatch broker | Atya.Roadmap | P0 | 2 | Blocked |
 | [ATYA-025](./ATYA-025-codequality-overhaul-modern-analyzers-async-rules-packed-verification.md) | CodeQuality overhaul: modern analyzers, async rules, packed verification, charter | CodeQuality | P1 | 3 | Blocked |
 | [ATYA-026](./ATYA-026-roll-pinned-workflows-and-security-baselines-across-the-fleet.md) | Roll pinned workflows and security baselines across the fleet | Atya.Roadmap | P1 | 3 | Blocked |
 | [ATYA-027](./ATYA-027-add-self-tests-for-reusable-workflows-and-composite-actions.md) | Add self-tests for reusable workflows and composite actions | github-workflows | P1 | 3 | Blocked |
@@ -152,3 +152,4 @@ All 148 task IDs are represented (ATYA-001..131 from the original consolidated p
 | [ATYA-146](./ATYA-146-redact-upstream-exception-messages-before-persisting-them-in-the-outbo.md) | Redact upstream exception messages before persisting them in the outbox | Messaging.Outbox | P2 | 5 | Blocked |
 | [ATYA-147](./ATYA-147-add-a-non-web-consumer-conformance-gate-to-the-fleet-audit.md) | Add a non-web consumer conformance gate to the fleet audit | Atya.Roadmap | P1 | 3 | Blocked |
 | [ATYA-148](./ATYA-148-add-the-cross-package-validation-schema-contract-test-and-golden-fixtu.md) | Add the cross-package validation-schema contract test and golden fixture | Testing | P2 | 4 | Blocked |
+| [ATYA-149](./ATYA-149-deploy-the-github-app-dispatch-broker-and-retire-the-pat.md) | Deploy the GitHub App dispatch broker and retire the PAT | platform | P0 | 2 | Blocked |

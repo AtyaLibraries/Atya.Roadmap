@@ -22,9 +22,9 @@
     "planning_repository_bootstrap_note": "Create AtyaLibraries/Atya.Roadmap before issue import. This approved pre-import bootstrap is external to the ATYA dependency graph and does not change task readiness."
   },
   "counts": {
-    "tasks": 148,
+    "tasks": 149,
     "by_priority": {
-      "P0": 15,
+      "P0": 16,
       "P1": 80,
       "P2": 28,
       "P3": 8
@@ -32,7 +32,7 @@
     "by_phase": {
       "0 — Authoritative inventory and evidence": 14,
       "1 — Source-of-truth policy and architecture decisions": 11,
-      "2 — Security, compatibility, and release blockers": 19,
+      "2 — Security, compatibility, and release blockers": 20,
       "3 — Build, workflow, and release consolidation": 21,
       "4 — Foundation and cross-cutting contracts": 14,
       "5 — Messaging, data, web, and diagnostics hardening": 18,
@@ -45,26 +45,26 @@
       "Audit": 4,
       "Cleanup": 2,
       "Documentation": 4,
-      "Implementation": 56,
+      "Implementation": 57,
       "Migration": 14,
       "Verification": 31
     },
     "by_status": {
       "Ready": 9,
-      "Blocked": 122
+      "Blocked": 123
     },
     "by_implementation_state": {
       "Fully satisfied": 7,
       "Implemented but unverified": 4,
       "Implemented inconsistently": 3,
-      "No audit-driven completion claim": 102,
+      "No audit-driven completion claim": 103,
       "Partially satisfied": 15
     },
-    "hard_dependency_edges": 294,
+    "hard_dependency_edges": 295,
     "advisory_prerequisite_edges": 6,
     "source_coverage_rows": 352,
     "spreadsheet_runtime_verified": {
-      "project_items": 148,
+      "project_items": 149,
       "source_coverage": 352
     }
   },
@@ -762,12 +762,12 @@
     },
     {
       "id": "ATYA-024",
-      "title": "Replace the PAT dispatch chain with a GitHub App",
+      "title": "Design and build the GitHub App dispatch broker",
       "repository": "Atya.Roadmap",
       "priority": "P0",
       "phase": 2,
       "phase_name": "Security, compatibility, and release blockers",
-      "type": "Migration",
+      "type": "Implementation",
       "status": "Blocked",
       "evidence_status": "Private maintainer evidence; public summary only",
       "confidence": "High",
@@ -776,11 +776,12 @@
       "dependencies": "ATYA-016",
       "advisoryPrerequisites": null,
       "related_tasks": [
+        "ATYA-149",
         "ATYA-001",
         "ATYA-002",
         "ATYA-003"
       ],
-      "issue_file": "github/issues/ATYA-024-replace-the-pat-dispatch-chain-with-a-github-app.md",
+      "issue_file": "github/issues/ATYA-024-design-and-build-the-github-app-dispatch-broker.md",
       "source_eco": "ECO-024",
       "origin": "Private organization audit and approved roadmap",
       "cleanup": false,
@@ -3810,7 +3811,7 @@
       "effort": "S",
       "dependencies": [
         "ATYA-018",
-        "ATYA-024"
+        "ATYA-149"
       ],
       "advisoryPrerequisites": null,
       "related_tasks": [
@@ -3840,7 +3841,7 @@
       "effort": "S",
       "dependencies": [
         "ATYA-018",
-        "ATYA-024"
+        "ATYA-149"
       ],
       "advisoryPrerequisites": null,
       "related_tasks": [
@@ -3870,7 +3871,7 @@
       "effort": "S",
       "dependencies": [
         "ATYA-018",
-        "ATYA-024"
+        "ATYA-149"
       ],
       "advisoryPrerequisites": null,
       "related_tasks": [
@@ -3900,7 +3901,7 @@
       "effort": "S",
       "dependencies": [
         "ATYA-018",
-        "ATYA-024"
+        "ATYA-149"
       ],
       "advisoryPrerequisites": null,
       "related_tasks": [
@@ -3945,6 +3946,34 @@
       "cleanup": false,
       "phase_name": "Security, compatibility, and release blockers",
       "status": "Blocked",
+      "implementation_state": "No audit-driven completion claim"
+    },
+    {
+      "id": "ATYA-149",
+      "title": "Deploy the GitHub App dispatch broker and retire the PAT",
+      "repository": "platform",
+      "priority": "P0",
+      "phase": 2,
+      "phase_name": "Security, compatibility, and release blockers",
+      "type": "Migration",
+      "status": "Blocked",
+      "evidence_status": "Private maintainer evidence; public summary only",
+      "confidence": "High",
+      "risk": "Critical",
+      "effort": "L",
+      "dependencies": "ATYA-024",
+      "advisoryPrerequisites": null,
+      "related_tasks": [
+        "ATYA-024",
+        "ATYA-127",
+        "ATYA-128",
+        "ATYA-129",
+        "ATYA-130"
+      ],
+      "issue_file": "github/issues/ATYA-149-deploy-the-github-app-dispatch-broker-and-retire-the-pat.md",
+      "source_eco": "ECO-024",
+      "origin": "ATYA-024 scope split (2026-07-27); private organization audit and approved roadmap",
+      "cleanup": false,
       "implementation_state": "No audit-driven completion claim"
     }
   ],

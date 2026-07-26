@@ -54,7 +54,7 @@ Modernize the AtyaLibraries ecosystem through the authoritative task graph while
 | [ATYA-021](../github/issues/ATYA-021-make-backgroundservices-consume-per-worker-validated-options.md) | Make BackgroundServices consume per-worker validated options | BackgroundServices | P1 | 2 | Blocked | ATYA-002; ATYA-006 |
 | [ATYA-022](../github/issues/ATYA-022-unify-correlation-one-owner-bounded-policy-wired-end-to-end.md) | Unify correlation: one owner, bounded policy, wired end-to-end | Atya.Roadmap | P1 | 2 | Blocked | ATYA-019; ATYA-034 |
 | [ATYA-023](../github/issues/ATYA-023-harden-http-client-protocol-and-payload-handling.md) | Harden Http.Client protocol and payload handling | Client | P1 | 2 | Blocked | ATYA-002; ATYA-022; ATYA-009; ATYA-052 |
-| [ATYA-024](../github/issues/ATYA-024-replace-the-pat-dispatch-chain-with-a-github-app.md) | Replace the PAT dispatch chain with a GitHub App | Atya.Roadmap | P0 | 2 | Blocked | ATYA-016 |
+| [ATYA-024](../github/issues/ATYA-024-design-and-build-the-github-app-dispatch-broker.md) | Design and build the GitHub App dispatch broker | Atya.Roadmap | P0 | 2 | Blocked | ATYA-016 |
 | [ATYA-025](../github/issues/ATYA-025-codequality-overhaul-modern-analyzers-async-rules-packed-verification.md) | CodeQuality overhaul: modern analyzers, async rules, packed verification, charter | CodeQuality | P1 | 3 | Blocked | ATYA-002 |
 | [ATYA-026](../github/issues/ATYA-026-roll-pinned-workflows-and-security-baselines-across-the-fleet.md) | Roll pinned workflows and security baselines across the fleet | Atya.Roadmap | P1 | 3 | Blocked | ATYA-019; ATYA-001; ATYA-124; ATYA-036 |
 | [ATYA-027](../github/issues/ATYA-027-add-self-tests-for-reusable-workflows-and-composite-actions.md) | Add self-tests for reusable workflows and composite actions | github-workflows | P1 | 3 | Blocked | ATYA-019 |
@@ -157,10 +157,10 @@ Modernize the AtyaLibraries ecosystem through the authoritative task graph while
 | [ATYA-124](../github/issues/ATYA-124-correct-and-fixture-test-platform-drift-sha-validation.md) | Correct and fixture-test platform drift SHA validation | platform | P1 | 2 | Blocked | ATYA-019 |
 | [ATYA-125](../github/issues/ATYA-125-enable-and-govern-private-vulnerability-reporting.md) | Enable and govern private vulnerability reporting | Atya.Roadmap | P1 | 2 | Blocked | ATYA-112 |
 | [ATYA-126](../github/issues/ATYA-126-remediate-the-public-site-s-vulnerable-vite-toolchain.md) | Remediate the public site's vulnerable Vite toolchain | AtyaLibraries.github.io | P0 | 2 | Ready | None |
-| [ATYA-127](../github/issues/ATYA-127-migrate-and-verify-backgroundservices-release-dispatch.md) | Migrate and verify BackgroundServices release dispatch | BackgroundServices | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
-| [ATYA-128](../github/issues/ATYA-128-migrate-and-verify-idempotency-release-dispatch.md) | Migrate and verify Idempotency release dispatch | Idempotency | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
-| [ATYA-129](../github/issues/ATYA-129-migrate-and-verify-messaging-outbox-release-dispatch.md) | Migrate and verify Messaging.Outbox release dispatch | Messaging.Outbox | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
-| [ATYA-130](../github/issues/ATYA-130-migrate-and-verify-pagination-release-dispatch.md) | Migrate and verify Pagination release dispatch | Pagination | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
+| [ATYA-127](../github/issues/ATYA-127-migrate-and-verify-backgroundservices-release-dispatch.md) | Migrate and verify BackgroundServices release dispatch | BackgroundServices | P1 | 3 | Blocked | ATYA-018; ATYA-149 |
+| [ATYA-128](../github/issues/ATYA-128-migrate-and-verify-idempotency-release-dispatch.md) | Migrate and verify Idempotency release dispatch | Idempotency | P1 | 3 | Blocked | ATYA-018; ATYA-149 |
+| [ATYA-129](../github/issues/ATYA-129-migrate-and-verify-messaging-outbox-release-dispatch.md) | Migrate and verify Messaging.Outbox release dispatch | Messaging.Outbox | P1 | 3 | Blocked | ATYA-018; ATYA-149 |
+| [ATYA-130](../github/issues/ATYA-130-migrate-and-verify-pagination-release-dispatch.md) | Migrate and verify Pagination release dispatch | Pagination | P1 | 3 | Blocked | ATYA-018; ATYA-149 |
 | [ATYA-131](../github/issues/ATYA-131-recover-serialization-v1-0-1-release-lineage.md) | Recover Serialization v1.0.1 release lineage | Serialization | P0 | 2 | Blocked | ATYA-003; ATYA-018; ATYA-020 |
 | [ATYA-132](../github/issues/ATYA-132-remove-the-asp-net-core-shared-framework-dependency-from-atya-http-cli.md) | Remove the ASP.NET Core shared-framework dependency from Atya.Http.Client | Client | P0 | 4 | Blocked | ATYA-009; ATYA-032 |
 | [ATYA-133](../github/issues/ATYA-133-override-tostring-on-result-and-resultt-the-throw-trap-is-not-json-spe.md) | Override ToString on Result and Result<T> — the throw-trap is not JSON-specific | Results | P1 | 4 | Blocked | ATYA-042 |
@@ -179,6 +179,7 @@ Modernize the AtyaLibraries ecosystem through the authoritative task graph while
 | [ATYA-146](../github/issues/ATYA-146-redact-upstream-exception-messages-before-persisting-them-in-the-outbo.md) | Redact upstream exception messages before persisting them in the outbox | Messaging.Outbox | P2 | 5 | Blocked | ATYA-058; ATYA-112 |
 | [ATYA-147](../github/issues/ATYA-147-add-a-non-web-consumer-conformance-gate-to-the-fleet-audit.md) | Add a non-web consumer conformance gate to the fleet audit | Atya.Roadmap | P1 | 3 | Blocked | ATYA-001; ATYA-030; ATYA-032; ATYA-132 |
 | [ATYA-148](../github/issues/ATYA-148-add-the-cross-package-validation-schema-contract-test-and-golden-fixtu.md) | Add the cross-package validation-schema contract test and golden fixture | Testing | P2 | 4 | Blocked | ATYA-052; ATYA-051 |
+| [ATYA-149](../github/issues/ATYA-149-deploy-the-github-app-dispatch-broker-and-retire-the-pat.md) | Deploy the GitHub App dispatch broker and retire the PAT | platform | P0 | 2 | Blocked | ATYA-024 |
 
 ## Detailed specifications
 

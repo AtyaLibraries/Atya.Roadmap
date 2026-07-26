@@ -1,5 +1,11 @@
 # ATYA-024 GitHub App dispatch contract
 
+## Scope split
+
+ATYA-024 was split on 2026-07-27. It now owns the **design and build** half: this contract, the threat model, the broker implementation, and the migration template. Every operation against live infrastructure or a live credential — Azure provisioning, App registration and installation, the key ceremony, broker deployment, the live dispatch probe, source-workflow cutover, and PAT revocation — belongs to **ATYA-149**, which is gated on seven unconfirmed deployment inputs. See [the scope-split report](../reports/ATYA-024-SCOPE-SPLIT.md).
+
+Everything below describes the contract ATYA-149 will deploy against. It is unchanged by the split.
+
 ## Decision state
 
 ATYA-024 is In Progress. Its evidence and live topology agree on 29 source workflows, one publisher target, one `publish-package` event, four independently tracked failed-dispatch migrations, and permanent replacement of the shared PAT. No source workflow, credential, App, installation, token, tag, or publication has been changed.

@@ -4,6 +4,12 @@ Date: 2026-07-22
 
 Status: In Progress; architecture approved, deployment pending
 
+> **Scope split, 2026-07-27.** ATYA-024 was subsequently narrowed to design and build.
+> Every deployment, registration, key-ceremony, cutover, and live-probe item described
+> below as pending now belongs to **ATYA-149**. This report is retained as the
+> point-in-time record it was; see [the scope-split report](./ATYA-024-SCOPE-SPLIT.md) for
+> what moved.
+
 ## Sanitized evidence result
 
 The authorized evidence chain is complete and internally consistent with the refreshed live topology: 29 source workflows use the legacy credential path, all address one publisher role with one dispatch event, four failures have independent downstream migration tasks, and permanent credential replacement remains required. The sole hard dependency is accepted and no other modernization task was active when ATYA-024 entered In Progress.

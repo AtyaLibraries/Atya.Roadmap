@@ -10,7 +10,7 @@
 | Phase | 3 — Build, workflow, and release consolidation |
 | Type | Migration |
 | Initial status | Blocked |
-| Hard dependencies | ATYA-018; ATYA-024 |
+| Hard dependencies | ATYA-018; ATYA-149 |
 | Advisory prerequisites | None |
 | Confidence | High |
 | Risk | High |
@@ -31,7 +31,7 @@ Private evidence reference: AUDIT-SEC-128
 
 ## Dependencies
 
-Hard dependencies: ATYA-018; ATYA-024
+Hard dependencies: ATYA-018; ATYA-149
 
 Advisory prerequisites: None
 
@@ -60,4 +60,4 @@ Advisory prerequisites: None
 
 ## Standalone implementation prompt
 
-Implement ATYA-128 for the AtyaLibraries ecosystem in repository **Idempotency**. Respect hard dependencies (ATYA-018; ATYA-024), obtain AUDIT-SEC-128 through the private maintainer channel, and do not publish private evidence, credentials, logs, or exploit reproduction. Make a focused change with tests, migration notes, rollback guidance, and sanitized completion evidence.
+Implement ATYA-128 for the AtyaLibraries ecosystem in repository **Idempotency**. Respect hard dependencies (ATYA-018; ATYA-149), obtain AUDIT-SEC-128 through the private maintainer channel, and do not publish private evidence, credentials, logs, or exploit reproduction. Make a focused change with tests, migration notes, rollback guidance, and sanitized completion evidence.
