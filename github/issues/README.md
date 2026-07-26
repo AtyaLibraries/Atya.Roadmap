@@ -1,6 +1,6 @@
 # Public AtyaLibraries roadmap issue specifications
 
-All 131 task IDs are represented. Security-sensitive entries are intentionally minimized and point to private maintainer evidence references.
+All 148 task IDs are represented (ATYA-001..131 from the original consolidated plan; ATYA-132..148 added by the Opus 5 delta review, 2026-07-26). Security-sensitive entries are intentionally minimized and point to private maintainer evidence references.
 
 | ID | Title | Repository | Priority | Phase | Initial status |
 |---|---|---|---|---:|---|
@@ -135,3 +135,20 @@ All 131 task IDs are represented. Security-sensitive entries are intentionally m
 | [ATYA-129](./ATYA-129-migrate-and-verify-messaging-outbox-release-dispatch.md) | Migrate and verify Messaging.Outbox release dispatch | Messaging.Outbox | P1 | 3 | Blocked |
 | [ATYA-130](./ATYA-130-migrate-and-verify-pagination-release-dispatch.md) | Migrate and verify Pagination release dispatch | Pagination | P1 | 3 | Blocked |
 | [ATYA-131](./ATYA-131-recover-serialization-v1-0-1-release-lineage.md) | Recover Serialization v1.0.1 release lineage | Serialization | P0 | 2 | Blocked |
+| [ATYA-132](./ATYA-132-remove-the-asp-net-core-shared-framework-dependency-from-atya-http-cli.md) | Remove the ASP.NET Core shared-framework dependency from Atya.Http.Client | Client | P0 | 4 | Blocked |
+| [ATYA-133](./ATYA-133-override-tostring-on-result-and-resultt-the-throw-trap-is-not-json-spe.md) | Override ToString on Result and Result<T> — the throw-trap is not JSON-specific | Results | P1 | 4 | Blocked |
+| [ATYA-134](./ATYA-134-dispose-the-per-iteration-di-scope-before-the-interval-delay-in-scoped.md) | Dispose the per-iteration DI scope before the interval delay in ScopedPeriodicBackgroundService | BackgroundServices | P1 | 2 | Blocked |
+| [ATYA-135](./ATYA-135-stop-graceful-shutdown-during-failure-backoff-from-faulting-the-host.md) | Stop graceful shutdown during failure backoff from faulting the host | BackgroundServices | P1 | 2 | Blocked |
+| [ATYA-136](./ATYA-136-fix-the-maxconsecutivefailures-off-by-one-and-make-the-shared-options.md) | Fix the MaxConsecutiveFailures off-by-one and make the shared options default immutable | BackgroundServices | P2 | 2 | Blocked |
+| [ATYA-137](./ATYA-137-adopt-foundation-serialization-fleet-wide-and-remove-dictionarykeypoli.md) | Adopt Foundation.Serialization fleet-wide and remove DictionaryKeyPolicy camelCasing | Serialization | P1 | 4 | Blocked |
+| [ATYA-138](./ATYA-138-make-atyahttpclient-tolerate-non-json-responses-instead-of-throwing.md) | Make AtyaHttpClient tolerate non-JSON responses instead of throwing | Client | P1 | 2 | Blocked |
+| [ATYA-139](./ATYA-139-preserve-the-correlation-response-header-across-the-exception-path.md) | Preserve the correlation response header across the exception path | Middleware | P1 | 4 | Blocked |
+| [ATYA-140](./ATYA-140-compute-the-idempotency-replay-window-at-completion-not-at-begin.md) | Compute the idempotency replay window at completion, not at begin | Idempotency | P1 | 5 | Blocked |
+| [ATYA-141](./ATYA-141-make-atya-diagnostics-logging-extensions-non-throwing.md) | Make Atya.Diagnostics.Logging extensions non-throwing | Logging | P2 | 5 | Blocked |
+| [ATYA-142](./ATYA-142-break-the-mediator-captive-dependency-and-stop-constructing-every-hand.md) | Break the Mediator captive dependency and stop constructing every handler per scope | Mediator | P1 | 5 | Blocked |
+| [ATYA-143](./ATYA-143-remove-the-ambiguous-dual-constructors-on-the-problemdetails-mappers.md) | Remove the ambiguous dual constructors on the ProblemDetails mappers | ProblemDetails | P3 | 4 | Blocked |
+| [ATYA-144](./ATYA-144-emit-the-w3c-trace-id-not-the-full-traceparent-in-the-traceid-extensio.md) | Emit the W3C trace id, not the full traceparent, in the traceId extension | ProblemDetails | P3 | 5 | Blocked |
+| [ATYA-145](./ATYA-145-install-the-middleware-correlation-accessor-with-postconfigure-so-cons.md) | Install the middleware correlation accessor with PostConfigure so consumer configuration cannot silently disable it | Middleware | P2 | 4 | Blocked |
+| [ATYA-146](./ATYA-146-redact-upstream-exception-messages-before-persisting-them-in-the-outbo.md) | Redact upstream exception messages before persisting them in the outbox | Messaging.Outbox | P2 | 5 | Blocked |
+| [ATYA-147](./ATYA-147-add-a-non-web-consumer-conformance-gate-to-the-fleet-audit.md) | Add a non-web consumer conformance gate to the fleet audit | Atya.Roadmap | P1 | 3 | Blocked |
+| [ATYA-148](./ATYA-148-add-the-cross-package-validation-schema-contract-test-and-golden-fixtu.md) | Add the cross-package validation-schema contract test and golden fixture | Testing | P2 | 4 | Blocked |

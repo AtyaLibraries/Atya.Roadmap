@@ -6,7 +6,7 @@
 - Name: AtyaLibraries Ecosystem Modernization
 - Planning repository: AtyaLibraries/Atya.Roadmap
 - Planning-repository bootstrap: required before issue import; this approved infrastructure step is external to the ATYA graph and does not affect Ready/Blocked status.
-- Scope: all 131 ATYA tasks; no remote resources were created by this architecture resolution.
+- Scope: all 148 ATYA tasks (ATYA-001..131 original; ATYA-132..148 Opus 5 delta review, 2026-07-26).
 
 Phases are thematic planning and reporting groups. Phase completion gates are non-blocking reporting milestones. The hard-dependency graph is authoritative for execution order, including valid cross-phase edges.
 
