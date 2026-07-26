@@ -19,5 +19,6 @@ The content is a sanitized publication derived from the private maintainer plann
 - [ATYA-014 implementation evidence](./reports/ATYA-014-IMPLEMENTATION.md)
 - [ATYA-016 implementation evidence](./reports/ATYA-016-IMPLEMENTATION.md)
 - [ATYA-018 implementation evidence](./reports/ATYA-018-IMPLEMENTATION.md)
+- [ATYA-024 GitHub App dispatch contract](./docs/ATYA-024-GITHUB-APP-DISPATCH.md)
 
 Security-sensitive issues contain only minimal public remediation summaries. Authorized maintainers use the listed private evidence reference to retrieve details through the private organization process.

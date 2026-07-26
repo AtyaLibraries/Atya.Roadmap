@@ -1,0 +1,14 @@
+{
+  "claims": {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "atya-publisher-dispatch",
+    "repository_owner_id": "1000",
+    "repository_id": "2001",
+    "event_name": "pull_request",
+    "ref": "refs/pull/7/merge",
+    "ref_type": "branch",
+    "workflow_ref": "example/source/.github/workflows/publish.yml@refs/pull/7/merge",
+    "workflow_sha": "3333333333333333333333333333333333333333"
+  },
+  "expected": "deny"
+}
