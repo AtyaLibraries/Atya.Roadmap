@@ -22,7 +22,7 @@
     "planning_repository_bootstrap_note": "Create AtyaLibraries/Atya.Roadmap before issue import. This approved pre-import bootstrap is external to the ATYA dependency graph and does not change task readiness."
   },
   "counts": {
-    "tasks": 131,
+    "tasks": 148,
     "by_priority": {
       "P0": 15,
       "P1": 80,
@@ -64,7 +64,7 @@
     "advisory_prerequisite_edges": 6,
     "source_coverage_rows": 352,
     "spreadsheet_runtime_verified": {
-      "project_items": 131,
+      "project_items": 148,
       "source_coverage": 352
     }
   },

@@ -162,6 +162,23 @@ Modernize the AtyaLibraries ecosystem through the authoritative task graph while
 | [ATYA-129](../github/issues/ATYA-129-migrate-and-verify-messaging-outbox-release-dispatch.md) | Migrate and verify Messaging.Outbox release dispatch | Messaging.Outbox | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
 | [ATYA-130](../github/issues/ATYA-130-migrate-and-verify-pagination-release-dispatch.md) | Migrate and verify Pagination release dispatch | Pagination | P1 | 3 | Blocked | ATYA-018; ATYA-024 |
 | [ATYA-131](../github/issues/ATYA-131-recover-serialization-v1-0-1-release-lineage.md) | Recover Serialization v1.0.1 release lineage | Serialization | P0 | 2 | Blocked | ATYA-003; ATYA-018; ATYA-020 |
+| [ATYA-132](../github/issues/ATYA-132-remove-the-asp-net-core-shared-framework-dependency-from-atya-http-cli.md) | Remove the ASP.NET Core shared-framework dependency from Atya.Http.Client | Client | P0 | 4 | Blocked | ATYA-009; ATYA-032 |
+| [ATYA-133](../github/issues/ATYA-133-override-tostring-on-result-and-resultt-the-throw-trap-is-not-json-spe.md) | Override ToString on Result and Result<T> — the throw-trap is not JSON-specific | Results | P1 | 4 | Blocked | ATYA-042 |
+| [ATYA-134](../github/issues/ATYA-134-dispose-the-per-iteration-di-scope-before-the-interval-delay-in-scoped.md) | Dispose the per-iteration DI scope before the interval delay in ScopedPeriodicBackgroundService | BackgroundServices | P1 | 2 | Blocked | ATYA-021 |
+| [ATYA-135](../github/issues/ATYA-135-stop-graceful-shutdown-during-failure-backoff-from-faulting-the-host.md) | Stop graceful shutdown during failure backoff from faulting the host | BackgroundServices | P1 | 2 | Blocked | ATYA-021 |
+| [ATYA-136](../github/issues/ATYA-136-fix-the-maxconsecutivefailures-off-by-one-and-make-the-shared-options.md) | Fix the MaxConsecutiveFailures off-by-one and make the shared options default immutable | BackgroundServices | P2 | 2 | Blocked | ATYA-021 |
+| [ATYA-137](../github/issues/ATYA-137-adopt-foundation-serialization-fleet-wide-and-remove-dictionarykeypoli.md) | Adopt Foundation.Serialization fleet-wide and remove DictionaryKeyPolicy camelCasing | Serialization | P1 | 4 | Blocked | ATYA-047; ATYA-009 |
+| [ATYA-138](../github/issues/ATYA-138-make-atyahttpclient-tolerate-non-json-responses-instead-of-throwing.md) | Make AtyaHttpClient tolerate non-JSON responses instead of throwing | Client | P1 | 2 | Blocked | ATYA-023 |
+| [ATYA-139](../github/issues/ATYA-139-preserve-the-correlation-response-header-across-the-exception-path.md) | Preserve the correlation response header across the exception path | Middleware | P1 | 4 | Blocked | ATYA-022; ATYA-055 |
+| [ATYA-140](../github/issues/ATYA-140-compute-the-idempotency-replay-window-at-completion-not-at-begin.md) | Compute the idempotency replay window at completion, not at begin | Idempotency | P1 | 5 | Blocked | ATYA-057; ATYA-122 |
+| [ATYA-141](../github/issues/ATYA-141-make-atya-diagnostics-logging-extensions-non-throwing.md) | Make Atya.Diagnostics.Logging extensions non-throwing | Logging | P2 | 5 | Blocked | ATYA-068; ATYA-025 |
+| [ATYA-142](../github/issues/ATYA-142-break-the-mediator-captive-dependency-and-stop-constructing-every-hand.md) | Break the Mediator captive dependency and stop constructing every handler per scope | Mediator | P1 | 5 | Blocked | ATYA-062 |
+| [ATYA-143](../github/issues/ATYA-143-remove-the-ambiguous-dual-constructors-on-the-problemdetails-mappers.md) | Remove the ambiguous dual constructors on the ProblemDetails mappers | ProblemDetails | P3 | 4 | Blocked | ATYA-053; ATYA-025 |
+| [ATYA-144](../github/issues/ATYA-144-emit-the-w3c-trace-id-not-the-full-traceparent-in-the-traceid-extensio.md) | Emit the W3C trace id, not the full traceparent, in the traceId extension | ProblemDetails | P3 | 5 | Blocked | ATYA-053; ATYA-066 |
+| [ATYA-145](../github/issues/ATYA-145-install-the-middleware-correlation-accessor-with-postconfigure-so-cons.md) | Install the middleware correlation accessor with PostConfigure so consumer configuration cannot silently disable it | Middleware | P2 | 4 | Blocked | ATYA-022; ATYA-055 |
+| [ATYA-146](../github/issues/ATYA-146-redact-upstream-exception-messages-before-persisting-them-in-the-outbo.md) | Redact upstream exception messages before persisting them in the outbox | Messaging.Outbox | P2 | 5 | Blocked | ATYA-058; ATYA-112 |
+| [ATYA-147](../github/issues/ATYA-147-add-a-non-web-consumer-conformance-gate-to-the-fleet-audit.md) | Add a non-web consumer conformance gate to the fleet audit | Atya.Roadmap | P1 | 3 | Blocked | ATYA-001; ATYA-030; ATYA-032; ATYA-132 |
+| [ATYA-148](../github/issues/ATYA-148-add-the-cross-package-validation-schema-contract-test-and-golden-fixtu.md) | Add the cross-package validation-schema contract test and golden fixture | Testing | P2 | 4 | Blocked | ATYA-052; ATYA-051 |
 
 ## Detailed specifications
 
@@ -173,3 +190,18 @@ Each linked issue specification is standalone. General tasks retain sanitized im
 - Declared compatibility, migration, testing, documentation, and rollback requirements are satisfied.
 - No unresolved high-severity regression, ownership ambiguity, or untracked dependency remains.
 - Public evidence contains no credential, private audit path, machine-specific data, or exploitable vulnerability reproduction.
+
+## Delta addendum — Opus 5 review (2026-07-26)
+
+ATYA-132..148 were added after an independent Opus 5 code-level review of all 37 repositories, scoped to findings absent from the GPT 5.6 SOL and Fable 5 backlogs and from the consolidated plan.
+
+Three findings were verified by execution rather than inspection:
+
+- ATYA-133 — a compiled reproduction confirmed `Result.ToString()` and string interpolation both throw `InvalidOperationException`.
+- ATYA-137 — a round-trip confirmed `DictionaryKeyPolicy = CamelCase` rewrites data keys irreversibly (`SKU` → `sku`, `X-Correlation-ID` → `x-Correlation-ID`).
+- ATYA-132 — restore-graph inspection confirmed `Atya.Http.Client` carries a transitive `FrameworkReference Microsoft.AspNetCore.App`.
+
+Two entries in the pre-existing graph are amended rather than replaced:
+
+- ATYA-044 is re-scoped to serialization only; the display-contract half moves to ATYA-133, because documenting the trap does not fix `ToString()`.
+- ATYA-021's remedy is corrected by ATYA-134: the BackgroundServices defect is scope *lifetime*, not synchronous disposal.
