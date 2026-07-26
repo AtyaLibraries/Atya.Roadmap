@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "task": "ATYA-019",
+  "title": "Immutable workflow and action reference policy",
+  "status": "defined-not-rolled-out",
+  "evidenceCaveat": "CAVEAT-001",
+  "authority": {
+    "owningRepository": "AtyaLibraries/Atya.Roadmap",
+    "accountableHumanOwner": "aasulyan",
+    "supersedes": "ad-hoc per-repository pinning conventions and the AtyaLibraries/platform drift check reference test",
+    "implementedBy": [
+      "ATYA-124",
+      "ATYA-026",
+      "ATYA-027",
+      "ATYA-028",
+      "ATYA-039"
+    ]
+  },
+  "scope": {
+    "appliesTo": [
+      ".github/workflows/*.yml",
+      ".github/workflows/*.yaml",
+      ".github/actions/**/action.yml",
+      ".github/actions/**/action.yaml",
+      "actions/**/action.yml",
+      "actions/**/action.yaml"
+    ],
+    "appliesToKeys": [
+      "jobs.<job_id>.uses",
+      "jobs.<job_id>.steps[*].uses",
+      "runs.steps[*].uses"
+    ],
+    "firstPartyOwners": [
+      "AtyaLibraries"
+    ],
+    "firstPartyHeldToSameRule": true,
+    "firstPartyRationale": "A first-party mutable tag is the largest blast radius in this fleet, not the smallest: one force-push to AtyaLibraries/github-workflows@v1 reaches every consuming repository on its next run with no review. First-party references receive no exemption."
+  },
+  "referenceKinds": {
+    "remote-action": {
+      "shape": "<owner>/<repo>[/<path>]@<ref>",
+      "immutableRefForm": "commit-sha-40-hex-lowercase",
+      "versionCommentRequired": true
+    },
+    "remote-reusable-workflow": {
+      "shape": "<owner>/<repo>/<path>.yml@<ref>",
+      "immutableRefForm": "commit-sha-40-hex-lowercase",
+      "versionCommentRequired": true,
+      "differsFromAction": false,
+      "differenceNote": "A reusable-workflow reference is held to exactly the same rule as an action reference. It resolves through the same Git ref mechanism and is equally re-pointable by moving a tag. The only difference is the YAML key it appears under (jobs.<id>.uses rather than a step uses), which affects extraction, not conformance."
+    },
+    "local": {
+      "shape": "./<path>",
+      "immutableRefForm": "none-required",
+      "versionCommentRequired": false,
+      "verdict": "exempt",
+      "exemptionRationale": "A local reference resolves against the commit of the calling repository that is already checked out for the run. It carries no independently movable ref, so there is nothing to pin. Its integrity is inherited from the caller's own commit."
+    },
+    "docker": {
+      "shape": "docker://<image>@<digest> or docker://<image>:<tag>",
+      "immutableRefForm": "image-digest-sha256",
+      "versionCommentRequired": false,
+      "verdict": "conditional",
+      "conditionNote": "A docker:// reference has no commit SHA, but it is not exempt: it must be pinned by immutable image digest (@sha256:<64 hex>). A docker:// reference carrying only a tag is mutable and is a violation."
+    }
+  },
+  "patterns": {
+    "usesLine": "^[ \\t]*(?:-[ \\t]*)?uses[ \\t]*:[ \\t]*(?<reference>\"[^\"]*\"|'[^']*'|[^ \\t#]+)[ \\t]*(?:#[ \\t]*(?<comment>[^\\r\\n]*?)[ \\t]*)?$",
+    "commitSha": "^[0-9a-f]{40}$",
+    "imageDigest": "^sha256:[0-9a-f]{64}$",
+    "versionComment": "^v?[0-9]+(?:\\.[0-9]+)*(?:[-+][0-9A-Za-z.-]+)?$",
+    "remoteReference": "^(?<owner>[A-Za-z0-9._-]+)/(?<repo>[A-Za-z0-9._-]+)(?<path>/[^@]+)?@(?<ref>[^\\s]+)$",
+    "reusableWorkflowPath": "\\.ya?ml$"
+  },
+  "rules": [
+    {
+      "id": "IR001",
+      "name": "immutable-ref-required",
+      "severity": "error",
+      "appliesTo": [
+        "remote-action",
+        "remote-reusable-workflow"
+      ],
+      "statement": "The ref of a remote reference must be a full 40-character lowercase hexadecimal commit SHA. Tags, branches, short SHAs, and uppercase SHAs are forbidden.",
+      "rationale": "A tag or branch is a movable pointer. Whoever can move it can change the code that runs inside the release trust boundary without any change landing in a consuming repository."
+    },
+    {
+      "id": "IR002",
+      "name": "version-comment-required",
+      "severity": "error",
+      "appliesTo": [
+        "remote-action",
+        "remote-reusable-workflow"
+      ],
+      "statement": "A commit-SHA-pinned reference must carry a trailing comment on the same line naming the human-readable version the SHA corresponds to, matching the versionComment pattern.",
+      "rationale": "The comment is load-bearing, not decorative. Renovate's github-actions manager reads it to recover currentValue; with no comment it sets enabled=false and skipReason='unversioned-reference'. An uncommented pin is therefore immutable but permanently frozen, and never receives a security update.",
+      "verifiedAgainst": "renovatebot/renovate lib/modules/manager/github-actions/extract.ts, read 2026-07-26"
+    },
+    {
+      "id": "IR003",
+      "name": "docker-digest-required",
+      "severity": "error",
+      "appliesTo": [
+        "docker"
+      ],
+      "statement": "A docker:// reference must be pinned by immutable image digest (@sha256:<64 hex>). A docker:// reference carrying only a tag is a violation.",
+      "rationale": "A container tag is republishable in place. Digest pinning is the container-registry equivalent of a commit SHA."
+    },
+    {
+      "id": "IR004",
+      "name": "local-reference-exempt",
+      "severity": "info",
+      "appliesTo": [
+        "local"
+      ],
+      "statement": "A ./ reference is exempt from IR001 through IR003 and is recorded as exempt-by-form, never as silently passing.",
+      "rationale": "There is no independently movable ref to pin."
+    },
+    {
+      "id": "IR005",
+      "name": "unparseable-reference-fails-closed",
+      "severity": "error",
+      "appliesTo": [
+        "unknown"
+      ],
+      "statement": "A uses: value that matches none of the recognised reference kinds is reported as a violation, not skipped.",
+      "rationale": "A validator that silently ignores what it cannot parse reports clean fleets it has not actually checked."
+    }
+  ],
+  "verdicts": [
+    "conformant",
+    "violation",
+    "exempt-by-form",
+    "exempt-by-exception"
+  ],
+  "evaluationUnit": "reference",
+  "evaluationUnitNote": "Conformance is decided per individual uses: occurrence. A file-level or repository-level pass/fail is explicitly insufficient, because observed files mix conformant and non-conformant references in the same job.",
+  "exceptions": {
+    "approver": "aasulyan",
+    "approverRole": "accountable human owner",
+    "process": "An exception is granted only by recording an entry in the exception register in this contract, in a reviewed pull request to Atya.Roadmap. An exception asserted in the consuming repository, in a comment, or in a pull-request description is not an exception and the validator will not honour it.",
+    "requiredFields": [
+      "reference",
+      "reason",
+      "approver",
+      "recordedOn",
+      "expiresOn",
+      "remediationTask"
+    ],
+    "maximumDurationDays": 90,
+    "expiredExceptionBehaviour": "violation",
+    "register": []
+  },
+  "renovate": {
+    "ownedBy": "ATYA-028",
+    "statedRequirementOnly": true,
+    "currentPresetObserved": "AtyaLibraries/renovate-config/default.json extends helpers:pinGitHubActionDigests and automerges github-actions digest updates after CI",
+    "requirements": [
+      {
+        "id": "RN001",
+        "requirement": "Digest pinning must remain enabled so that a newly introduced tag reference is converted to a SHA plus version comment rather than left mutable.",
+        "mechanism": "helpers:pinGitHubActionDigests sets pinDigests=true for matchDepTypes ['action']."
+      },
+      {
+        "id": "RN002",
+        "requirement": "Every SHA-pinned reference must carry a version comment, otherwise Renovate cannot advance it at all.",
+        "mechanism": "Renovate recovers currentValue from the trailing comment. Absent the comment it marks the dependency enabled=false with skipReason 'unversioned-reference', so the pin is never updated again.",
+        "consequenceIfIgnored": "Silent permanent freeze. The reference stays immutable and stays vulnerable."
+      },
+      {
+        "id": "RN003",
+        "requirement": "ATYA-028 must confirm that the preset's depType matching actually reaches reusable-workflow references (jobs.<id>.uses), not only step-level action references, and must add explicit coverage if it does not.",
+        "status": "unconfirmed-by-atya-019",
+        "note": "The Renovate github-actions manager documents support for updating reusable workflows, and repository uses: references are extracted with depType 'action'. ATYA-019 did not run Renovate against this fleet and therefore does not assert that helpers:pinGitHubActionDigests covers jobs.<id>.uses in practice. This must be proven, not assumed."
+      },
+      {
+        "id": "RN004",
+        "requirement": "Digest automerge must remain gated on CI success, and major updates must remain gated on dashboard approval.",
+        "mechanism": "Already present in the observed preset; recorded here so a later preset change cannot silently drop it."
+      }
+    ]
+  },
+  "driftValidatorRequirements": {
+    "ownedBy": "ATYA-124",
+    "targetsExisting": "AtyaLibraries/platform .github/workflows/drift-audit.yml",
+    "observedDefect": {
+      "summary": "The existing check tests reference conformance with the literal regex /uses:\\s*AtyaLibraries\\/github-workflows\\/\\.github\\/workflows\\/dotnet-package-ci\\.yml@v1\\b/i, which requires the mutable tag @v1.",
+      "effect": "The check is inverted with respect to this policy. A repository that correctly SHA-pins the reusable workflow is reported as drift, and a repository that uses the mutable tag is reported as clean.",
+      "verifiedOn": "2026-07-26",
+      "verifiedBy": "direct read of the workflow source and of every .github/workflows file in the organization"
+    },
+    "requirements": [
+      {
+        "id": "DV001",
+        "requirement": "The validator must never require a specific mutable ref. Conformance is a property of the ref form, not of a hard-coded ref value."
+      },
+      {
+        "id": "DV002",
+        "requirement": "The validator must separate two distinct questions and report them separately: adoption (does this repository call the expected reusable workflow identity at all) and conformance (is the ref of that call immutable). The existing check conflates them into one regex, which is why fixing the ref form appears to break adoption."
+      },
+      {
+        "id": "DV003",
+        "requirement": "The validator must evaluate every uses: occurrence independently and report file, line, reference, verdict, and rule id. A file-level boolean is insufficient."
+      },
+      {
+        "id": "DV004",
+        "requirement": "The validator must classify each reference into one of the four reference kinds before judging it, and must apply IR003 to docker:// and IR004 to local references rather than passing or failing them by accident."
+      },
+      {
+        "id": "DV005",
+        "requirement": "The validator must parse the trailing version comment and enforce IR002."
+      },
+      {
+        "id": "DV006",
+        "requirement": "The validator must fail closed under IR005 on any uses: value it cannot classify, and on any workflow file it cannot read or parse."
+      },
+      {
+        "id": "DV007",
+        "requirement": "The validator must honour only exceptions recorded in the exception register of this contract, and must treat an expired exception as a violation."
+      },
+      {
+        "id": "DV008",
+        "requirement": "The validator must be exercised by fixtures covering, at minimum, the cases in github/contracts/atya-019/fixtures, including a file that mixes conformant and non-conformant references."
+      }
+    ]
+  }
+}

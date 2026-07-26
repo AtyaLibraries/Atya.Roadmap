@@ -1,0 +1,20 @@
+{
+  "name": "per-reference evaluation of a file that mixes conformant and non-conformant references",
+  "workflow": "mixed-references.workflow.yml",
+  "note": "Deliberately has no 'expected' property, so the single-reference fixture loader skips it. Consumed separately by the file-scanning assertions.",
+  "fileExpectations": {
+    "total": 7,
+    "conformant": 4,
+    "violations": 2,
+    "exemptByForm": 1,
+    "references": [
+      { "line": 15, "verdict": "conformant", "rule": null, "kind": "remote-reusable-workflow" },
+      { "line": 21, "verdict": "conformant", "rule": null, "kind": "remote-action" },
+      { "line": 24, "verdict": "conformant", "rule": null, "kind": "remote-action" },
+      { "line": 27, "verdict": "exempt-by-form", "rule": "IR004", "kind": "local" },
+      { "line": 30, "verdict": "violation", "rule": "IR001", "kind": "remote-action" },
+      { "line": 33, "verdict": "conformant", "rule": null, "kind": "remote-action" },
+      { "line": 36, "verdict": "violation", "rule": "IR002", "kind": "remote-action" }
+    ]
+  }
+}

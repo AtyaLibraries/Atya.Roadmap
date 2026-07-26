@@ -1,0 +1,6 @@
+{
+  "name": "third-party action pinned to a SHA with a trailing version comment",
+  "line": "        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3",
+  "provenance": "observed: AtyaLibraries/Atya.Templates.NuGetPackage .github/workflows/publish-template.yml:40",
+  "expected": { "verdict": "conformant", "rule": null, "kind": "remote-action" }
+}

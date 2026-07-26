@@ -1,0 +1,6 @@
+{
+  "name": "github-script referenced by mutable major tag",
+  "line": "        uses: actions/github-script@v7",
+  "provenance": "observed: AtyaLibraries/Atya.Templates.NuGetPackage .github/workflows/publish-nuget.yml:18 and 22 further repositories",
+  "expected": { "verdict": "violation", "rule": "IR001", "kind": "remote-action" }
+}

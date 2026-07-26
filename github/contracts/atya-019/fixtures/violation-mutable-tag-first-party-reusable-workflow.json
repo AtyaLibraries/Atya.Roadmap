@@ -1,0 +1,6 @@
+{
+  "name": "first-party reusable workflow referenced by mutable tag",
+  "line": "    uses: AtyaLibraries/github-workflows/.github/workflows/dotnet-package-ci.yml@v1",
+  "provenance": "observed: AtyaLibraries/Abstractions .github/workflows/ci.yml:16 and 13 further repositories",
+  "expected": { "verdict": "violation", "rule": "IR001", "kind": "remote-reusable-workflow" }
+}

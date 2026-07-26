@@ -1,0 +1,6 @@
+{
+  "name": "docker reference whose digest is present but malformed",
+  "line": "        uses: docker://alpine@sha256:deadbeef",
+  "provenance": "synthetic: presence of a digest is not enough; a truncated digest is not immutable and must not pass",
+  "expected": { "verdict": "violation", "rule": "IR003", "kind": "docker" }
+}
