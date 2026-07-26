@@ -1,0 +1,6 @@
+{
+  "name": "third-party action referenced by mutable tag",
+  "line": "        uses: NuGet/login@v1",
+  "provenance": "observed: AtyaLibraries/Atya.Templates.NuGetPackage .github/workflows/publish-template.yml:222",
+  "expected": { "verdict": "violation", "rule": "IR001", "kind": "remote-action" }
+}

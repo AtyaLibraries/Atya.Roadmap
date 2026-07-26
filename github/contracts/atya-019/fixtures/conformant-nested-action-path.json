@@ -1,0 +1,6 @@
+{
+  "name": "action in a subdirectory of its repository, SHA-pinned with comment",
+  "line": "        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2",
+  "provenance": "observed: AtyaLibraries/github-workflows .github/workflows/codeql-csharp.yml:42",
+  "expected": { "verdict": "conformant", "rule": null, "kind": "remote-action" }
+}

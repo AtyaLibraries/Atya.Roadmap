@@ -1,0 +1,7 @@
+{
+  "name": "reusable workflow SHA-pinned but carrying no version comment",
+  "line": "    uses: AtyaLibraries/github-workflows/.github/workflows/dotnet-package-ci.yml@950f73c1f1fc997bc2d5c83d68c1729f748a0f77",
+  "provenance": "observed: AtyaLibraries/Results .github/workflows/ci.yml:16 and 12 further repositories",
+  "note": "Immutable but permanently frozen. Renovate sets enabled=false with skipReason unversioned-reference, so this pin never receives a security update.",
+  "expected": { "verdict": "violation", "rule": "IR002", "kind": "remote-reusable-workflow" }
+}

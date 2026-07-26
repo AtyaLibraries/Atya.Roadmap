@@ -1,0 +1,6 @@
+{
+  "name": "path reference that escapes the repository and matches no recognised kind",
+  "line": "        uses: ../shared/action",
+  "provenance": "synthetic: proves the validator fails closed rather than skipping what it cannot parse",
+  "expected": { "verdict": "violation", "rule": "IR005", "kind": "unknown" }
+}

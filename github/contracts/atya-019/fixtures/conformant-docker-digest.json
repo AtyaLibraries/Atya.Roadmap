@@ -1,0 +1,6 @@
+{
+  "name": "docker reference pinned by immutable image digest",
+  "line": "        uses: docker://alpine@sha256:3f57d9401f6e9e6a2d2d0f1a7f7d4b1c8e5a6b2c3d4e5f60718293a4b5c6d7e8",
+  "provenance": "synthetic: no docker:// reference exists in the fleet as of 2026-07-26; the policy must still be determinate",
+  "expected": { "verdict": "conformant", "rule": null, "kind": "docker" }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "action referenced by branch name",
+  "line": "        uses: actions/checkout@main",
+  "provenance": "synthetic: the most permissive mutable form the policy must reject",
+  "expected": { "verdict": "violation", "rule": "IR001", "kind": "remote-action" }
+}

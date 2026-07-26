@@ -1,0 +1,36 @@
+# Fixture only. This file is deliberately located outside .github/workflows so it is
+# never scheduled or executed. It reproduces the shape observed in
+# AtyaLibraries/Atya.Templates.NuGetPackage .github/workflows/publish-template.yml on
+# 2026-07-26: a file in which most references are correctly pinned and one is not.
+# A file-level pass/fail verdict cannot express this, which is why the policy is
+# evaluated per reference.
+
+name: Mixed reference fixture
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-reusable:
+    uses: AtyaLibraries/github-workflows/.github/workflows/dotnet-package-ci.yml@f6190353bf05e780bd2b98a0980fe1a7b0e93a27 # v1
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1  # v5.4.0
+
+      - name: Local composite step
+        uses: ./.github/actions/build-pack
+
+      - name: Authenticate to the registry
+        uses: NuGet/login@v1
+
+      - name: Attest provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32  # v4.1.0
+
+      - name: Frozen pin with no version comment
+        uses: AtyaLibraries/github-workflows/.github/actions/build-pack-nuget@12bd0f142d443058477bcb167bad4b4f063de994

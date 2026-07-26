@@ -1,0 +1,6 @@
+{
+  "name": "step written as a YAML list item rather than a mapping key",
+  "line": "      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0",
+  "provenance": "observed: AtyaLibraries/github-workflows .github/workflows/dotnet-package-ci.yml:103",
+  "expected": { "verdict": "conformant", "rule": null, "kind": "remote-action" }
+}

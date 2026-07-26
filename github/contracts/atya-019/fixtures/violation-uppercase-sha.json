@@ -1,0 +1,6 @@
+{
+  "name": "action referenced by uppercase SHA",
+  "line": "        uses: actions/checkout@DF4CB1C069E1874EDD31B4311F1884172CEC0E10 # v6.0.3",
+  "provenance": "synthetic: catches a validator written with a case-insensitive hex class; the canonical form is lowercase. Carries a valid version comment so the case isolates IR001.",
+  "expected": { "verdict": "violation", "rule": "IR001", "kind": "remote-action" }
+}
