@@ -2,7 +2,7 @@
 
 Date: 2026-07-26
 
-Public issue: [#21 — Define one immutable workflow and action reference policy](https://github.com/AtyaLibraries/Atya.Roadmap/issues/21)
+Public issue: [#14 — Define one immutable workflow and action reference policy](https://github.com/AtyaLibraries/Atya.Roadmap/issues/14)
 
 ## Result
 
