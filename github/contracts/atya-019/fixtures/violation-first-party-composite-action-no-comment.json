@@ -1,0 +1,6 @@
+{
+  "name": "first-party composite action SHA-pinned but carrying no version comment",
+  "line": "        uses: AtyaLibraries/github-workflows/.github/actions/build-pack-nuget@12bd0f142d443058477bcb167bad4b4f063de994",
+  "provenance": "observed: AtyaLibraries/publisher .github/workflows/publish.yml:149",
+  "expected": { "verdict": "violation", "rule": "IR002", "kind": "remote-action" }
+}

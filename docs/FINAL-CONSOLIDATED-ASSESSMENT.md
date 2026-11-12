@@ -4,7 +4,7 @@
 
 AtyaLibraries has a credible package foundation and ambitious governance and release goals, but the ecosystem still requires coordinated authority, release-integrity, contract, runtime-correctness, and composition work before broad readiness claims are justified.
 
-The public roadmap contains **131 tasks**: **9 Ready** and **122 Blocked**. Hard dependencies alone determine initial readiness; phases are reporting groups.
+The public roadmap contains **148 tasks**: **9 Ready** and **139 Blocked** (ATYA-132..148 added by the Opus 5 delta review, 2026-07-26; all are Blocked on existing work). Hard dependencies alone determine initial readiness; phases are reporting groups.
 
 ## Top risks
 
@@ -29,4 +29,4 @@ Detailed audit evidence, security reproduction material, environment diagnostics
 
 ## Publication boundary
 
-All 131 task IDs, titles, priorities, phases, ownership assignments, and dependency relationships are represented publicly. Private audit source material is retained by maintainers and referenced only through non-resolving private evidence identifiers where necessary.
+All 148 task IDs, titles, priorities, phases, ownership assignments, and dependency relationships are represented publicly. Private audit source material is retained by maintainers and referenced only through non-resolving private evidence identifiers where necessary.

@@ -57,6 +57,10 @@ Advisory prerequisites: None
 - Public evidence is sanitized and the private evidence reference is updated by maintainers.
 - No unresolved high-severity regression remains in the affected scope.
 
+## Implementation checkpoint
+
+Discovery and the sanitized contract package are recorded in [the ATYA-024 implementation report](../../reports/ATYA-024-IMPLEMENTATION.md). The organization owner approved the Azure Function and Azure Key Vault architecture; deployment and every credential operation remain paused pending the documented prerequisites and later checkpoint. This does not start the downstream source migrations.
+
 ## Standalone implementation prompt
 
 Implement ATYA-024 for the AtyaLibraries ecosystem in repository **Atya.Roadmap**. Respect hard dependencies (ATYA-016), obtain AUDIT-SEC-024 through the private maintainer channel, and do not publish private evidence, credentials, logs, or exploit reproduction. Make a focused change with tests, migration notes, rollback guidance, and sanitized completion evidence.

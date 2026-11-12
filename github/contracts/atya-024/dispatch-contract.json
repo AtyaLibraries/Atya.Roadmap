@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "task": "ATYA-024",
+  "topology": {
+    "sourceWorkflowCount": 29,
+    "publisherTargetCount": 1,
+    "dispatchEventTypes": [
+      "publish-package"
+    ],
+    "independentFailedDispatchMigrations": 4
+  },
+  "sourceAuthentication": {
+    "mechanism": "github-actions-oidc",
+    "secretsRequired": false,
+    "audience": "atya-publisher-dispatch",
+    "requiredClaims": [
+      "iss",
+      "aud",
+      "repository_owner_id",
+      "repository_id",
+      "event_name",
+      "ref",
+      "ref_type",
+      "workflow_ref",
+      "workflow_sha"
+    ]
+  },
+  "authorization": {
+    "repositoryIdentity": "private-deployment-allowlist-by-id",
+    "expectedRepositoryCount": 29,
+    "allowedEventNames": [
+      "push"
+    ],
+    "requiredRefType": "tag",
+    "requiredRefPattern": "^refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$",
+    "requiredWorkflowRef": "private-deployment-allowlist-by-immutable-identity",
+    "denyPullRequestEvents": true,
+    "denyUnlistedBranches": true,
+    "denyForks": true
+  },
+  "payload": {
+    "maximumBytes": 4096,
+    "allowedFields": [
+      "schema_version",
+      "source_repository_id",
+      "source_ref",
+      "source_sha",
+      "dry_run",
+      "correlation_id",
+      "idempotency_key"
+    ],
+    "requiredFields": [
+      "schema_version",
+      "source_repository_id",
+      "source_ref",
+      "source_sha",
+      "dry_run",
+      "correlation_id",
+      "idempotency_key"
+    ],
+    "rejectUnknownFields": true,
+    "sourceShaPattern": "^[0-9a-f]{40}$",
+    "correlationIdPattern": "^[0-9a-f]{32}$",
+    "idempotencyKeyPattern": "^[0-9a-z-]{64}$",
+    "packageIdentitySource": "private-server-side-source-policy"
+  },
+  "broker": {
+    "privateKeyOperation": "vault-sign-only",
+    "installationTokenVisibleToSource": false,
+    "installationRepositoryCount": 1,
+    "dispatchTargetRole": "publisher",
+    "dispatchEventType": "publish-package",
+    "logPolicy": "decision-codes-and-correlation-only"
+  },
+  "proof": {
+    "staticValidation": "required",
+    "negativeFixtures": "required",
+    "brokerDryRun": "manual-checkpoint-required",
+    "installationTokenProbe": "manual-checkpoint-required",
+    "liveDispatch": "manual-checkpoint-required",
+    "publication": "prohibited-during-atya-024-checkpoint"
+  }
+}

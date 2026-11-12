@@ -1,0 +1,6 @@
+{
+  "name": "docker reference carrying a mutable tag instead of a digest",
+  "line": "        uses: docker://alpine:3.19",
+  "provenance": "synthetic: a container tag is republishable in place",
+  "expected": { "verdict": "violation", "rule": "IR003", "kind": "docker" }
+}

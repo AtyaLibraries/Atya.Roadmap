@@ -1,0 +1,6 @@
+{
+  "name": "version comment without a leading v",
+  "line": "        uses: danielpalme/ReportGenerator-GitHub-Action@049f7ec958c672fd31d5cc1cb01622dc8d2e23ab # 5.5.10",
+  "provenance": "observed: AtyaLibraries/github-workflows .github/workflows/dotnet-package-ci.yml:182",
+  "expected": { "verdict": "conformant", "rule": null, "kind": "remote-action" }
+}

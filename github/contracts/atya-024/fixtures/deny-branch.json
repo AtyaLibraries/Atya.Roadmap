@@ -1,0 +1,14 @@
+{
+  "claims": {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "atya-publisher-dispatch",
+    "repository_owner_id": "1000",
+    "repository_id": "2001",
+    "event_name": "push",
+    "ref": "refs/heads/feature/untrusted",
+    "ref_type": "branch",
+    "workflow_ref": "example/source/.github/workflows/publish.yml@refs/heads/feature/untrusted",
+    "workflow_sha": "2222222222222222222222222222222222222222"
+  },
+  "expected": "deny"
+}

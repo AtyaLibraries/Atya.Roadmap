@@ -1,0 +1,17 @@
+{
+  "name": "mutable reference covered by an unexpired entry in the exception register",
+  "line": "        uses: NuGet/login@v1",
+  "provenance": "synthetic: exercises the exception process; the real register in the contract is empty",
+  "exceptionRegister": [
+    {
+      "reference": "NuGet/login@v1",
+      "reason": "Upstream publishes no immutable release SHA suitable for pinning at the time of writing.",
+      "approver": "aasulyan",
+      "recordedOn": "2026-07-26",
+      "expiresOn": "2026-10-24",
+      "remediationTask": "ATYA-026"
+    }
+  ],
+  "evaluationDate": "2026-07-26",
+  "expected": { "verdict": "exempt-by-exception", "rule": null, "kind": "remote-action" }
+}

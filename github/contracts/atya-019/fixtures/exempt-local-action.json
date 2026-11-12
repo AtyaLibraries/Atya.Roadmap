@@ -1,0 +1,6 @@
+{
+  "name": "local composite action reference",
+  "line": "        uses: ./.github/actions/build-pack",
+  "provenance": "synthetic: no local reference exists in the fleet as of 2026-07-26",
+  "expected": { "verdict": "exempt-by-form", "rule": "IR004", "kind": "local" }
+}
