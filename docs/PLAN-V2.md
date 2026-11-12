@@ -25,7 +25,7 @@ New tasks: ATYA-150 (release merged ATYA-014/015 fixes), 151 (credential-free re
 | Disposition | Status | Tasks |
 |---|---|---|
 | Recorded as decided (ADR-01, 02, 03), closed Done | Done | 005, 006, 007, 008 |
-| Decision not in the register, kept open for the owner | Ready, P1 | 010, 011, 122 |
+| Owner decisions recorded 2026-11-13 (ADR-10, 11, 12), closed Done | Done | 010, 011, 122 |
 | Superseded by ATYA-151, closed not planned | Rejected | 127, 128, 129, 130, 024 (design retained for reference, not deployed) |
 | Superseded by ATYA-031 | Rejected | 121 |
 | Superseded by ATYA-152 | Rejected | 026, 028, 035, 124 |
