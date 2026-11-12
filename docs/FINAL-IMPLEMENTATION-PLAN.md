@@ -1,3 +1,5 @@
+> **Superseded by [PLAN-V2](PLAN-V2.md) (2026-11-13).** This plan is kept for history. Execution order, lanes and task dispositions now follow PLAN-V2.
+
 # Final Implementation Plan — Public Edition
 
 ## Program goal
