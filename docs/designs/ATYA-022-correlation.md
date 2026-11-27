@@ -15,13 +15,13 @@ Verified in source:
 
 ## Where each piece lives (the layering problem)
 
-ATYA-022 says "Middleware owns the concept". The Constitution layers packages `Foundation` → `Errors`/`Diagnostics` → `Http`/`Hosting`/`Messaging` → `Web`/`Application`, with no upward edges. `Client` (Http) and `ProblemDetails` (Errors) sit **below** `Middleware` (Web), so they cannot depend on it, and a literal-free design needs a shared owner below all of them. `Atya.Diagnostics.Tracing` already owns the `correlation.id` tag and carries the id in `TraceContextSnapshot`, and it is below both `Middleware` and `Client`. Decision: **Tracing owns the concept.** Middleware owns request handling.
+ATYA-022 says "Middleware owns the concept". The Constitution layers packages `Foundation` → `Errors`/`Diagnostics` → `Http`/`Hosting`/`Messaging` → `Web`/`Application`, with no upward edges. `Client` (Http) and `ProblemDetails` (Errors) sit **below** `Middleware` (Web), so they cannot depend on it, and a literal-free design needs a shared owner below all of them. `Atya.Diagnostics.Tracing` already owns the `correlation.id` tag and carries the id in `TraceContextSnapshot`, and it is below both `Middleware` and `Client`. Decision (approved): **Tracing owns the concept.** Middleware owns request handling.
 
 | Piece | Owner (existing package) |
 |---|---|
 | Default header name constant, id policy (max length, charset, normalise, generate), carrier names | `Tracing` |
 | Log scope property name | `Logging` (unchanged) |
-| Inbound handling: accept predicate, validate or regenerate, response header, log scope, Activity tag and baggage | `Middleware` |
+| Inbound handling: accept predicate, validate or regenerate, response header, log scope, `CorrelationContext` and Activity tag | `Middleware` |
 | Reading the id for problem bodies | `ProblemDetails` options accessor; wired by `Middleware` |
 | Outbound propagation | `Client` (`CorrelationPropagationHandler`) |
 
@@ -36,7 +36,9 @@ public sealed class CorrelationIdPolicy
     string? Resolve(IEnumerable<string?> inboundValues);   // null when empty, too long, bad char, or several distinct values
     string Generate();                                      // Guid "N"
 }
-// ActivityExtensions.SetCorrelationId (exists, sets the tag) also adds baggage; new  string? GetCorrelationId(this Activity?)  /* walks parents */
+public static class CorrelationContext        // AsyncLocal ambient carrier
+{ string? Current { get; }  IDisposable Push(string id); /* also sets the correlation.id tag on Activity.Current when one exists; restores on dispose */ }
+// ActivityExtensions.SetCorrelationId (exists) is unchanged. No Activity baggage, no manufactured Activity.
 
 // Atya.Web.Middleware options (additive)
 AtyaWebMiddlewareOptions.CorrelationPolicy;  Func<HttpContext,bool> AcceptInboundCorrelationId = _ => true;   // trusted-proxy hook
@@ -50,9 +52,9 @@ public sealed class CorrelationPropagationHandler : DelegatingHandler   // added
 
 ## Behaviour
 
-- **Inbound (Middleware).** If `AcceptInboundCorrelationId` is true, resolve the header values through the policy; otherwise, or when resolution returns null, generate a new id. Several distinct values are invalid by policy (no guessing which one is real). Set the `AtyaCorrelationIdFeature`, write the response header via `OnStarting` (ATYA-139), begin `logger.BeginCorrelationScope(id)` for the request, and tag and baggage the current Activity.
-- **Carrier.** The id travels as Activity baggage and tag keyed `correlation.id`. Baggage is inherited by child activities (`GetBaggageItem` walks parents) and the runtime's default propagator also forwards baggage on outgoing `HttpClient` calls (header format depends on runtime version; implementation must verify it on net10.0 before relying on it). Reading it needs no `HttpContext` and no ASP.NET reference in `Client`. If `Activity.Current` is null (no listener), Middleware starts an unlisted `new Activity("Atya.Web.Request")` for the request so the carrier always exists (open question 2).
-- **Outbound (Client).** The handler reads the id from the current Activity (fallback: the options accessor), validates it with the same policy, and sets the configured header only if the request has none. An invalid id is omitted and logged once. `AtyaHttpClient.ApplyCorrelation` is removed in favour of the handler.
+- **Inbound (Middleware).** If `AcceptInboundCorrelationId` is true, resolve the header values through the policy; otherwise, or when resolution returns null, generate a new id. Several distinct values are invalid by policy (no guessing which one is real). Set the `AtyaCorrelationIdFeature`, write the response header via `OnStarting` (ATYA-139), begin `logger.BeginCorrelationScope(id)` for the request, and `CorrelationContext.Push(id)` (which also tags `Activity.Current` when one exists).
+- **Carrier (decided).** The id travels in `CorrelationContext`, an `AsyncLocal<string?>` owned by Tracing. When an Activity exists, the `correlation.id` tag is also set on it. Activity baggage is not used (the default propagator would forward it to every outgoing call, third parties included) and no Activity is manufactured (it would change `Activity.Current` for the whole app). Reading the carrier needs no `HttpContext` and no ASP.NET reference in `Client`.
+- **Outbound (Client).** The handler adds the header explicitly from `CorrelationContext.Current` (fallback: the options accessor), validates it with the same policy, and sets the configured header only if the request has none. An invalid id is omitted and logged once. `AtyaHttpClient.ApplyCorrelation` is removed in favour of the handler.
 - **ProblemDetails.** The body extension comes from the accessor; Middleware's `PostConfigure` (ATYA-145) sets it from the feature. Used alone, ProblemDetails no longer reads the request header: no literal remains.
 - **Header rename.** `CorrelationIdHeaderName` is configured in Middleware and in Client separately; both default to `CorrelationHeader.DefaultName`. Renaming in both breaks nothing; renaming in only one is a configuration mistake and is documented.
 - **Tracing fix.** `TraceContextSnapshot.WriteTo` switches to `CorrelationHeader.DefaultName`. This is wire-visible for anyone parsing the old `correlation.id` key; release-noted.
@@ -61,7 +63,7 @@ public sealed class CorrelationPropagationHandler : DelegatingHandler   // added
 
 1. Policy: oversized, control-character, space-containing, empty and duplicate-distinct inputs are regenerated; a valid id of exactly 128 characters is kept (boundary tests on `CorrelationIdPolicy`, no HTTP needed).
 2. End to end (the acceptance test, a two-service sample on two TestServers): inbound id X appears in service A's response header, A's log scope, A's Activity tag, the outbound request header, and service B's response header and log scope. Invalid inbound input is replaced consistently everywhere.
-3. Works with no listener: same test with no `ActivitySource` listeners still propagates.
+3. Works with no listener and no Activity: same test with no `ActivitySource` listeners still propagates; with an Activity present, its `correlation.id` tag equals the id; no `baggage` header is sent to the downstream service.
 4. Rename test: custom header name configured in both services; nothing else changes.
 5. `AcceptInboundCorrelationId = false` ignores a valid inbound header.
 6. The header is present on error responses (shared with ATYA-139).
@@ -77,7 +79,7 @@ Unit tests per package for 1, 5, 7; integration tests in `Middleware` (which gai
 
 ## PR breakdown and release order
 
-1. Tracing: policy, header constant, baggage helpers, `WriteTo` fix. Release first.
+1. Tracing 1.2.0: policy, header constant, `CorrelationContext`, `WriteTo` fix (behavioural fix in a minor; not part of the Wave 1 Tracing 1.1.0). Release first.
 2. ProblemDetails 2.0 and Results kinds (see ATYA-053).
 3. Middleware 2.0 (see ATYA-055) adopting the policy.
 4. Client 2.0 (see ATYA-023) with the handler.
@@ -104,9 +106,9 @@ No edge is added to `ProblemDetails`, `Logging`, `BackgroundServices` or `Mediat
 - Hard dependency ATYA-034 is Deferred in Plan v2; ATYA-019 is the reference policy and is not a code dependency.
 - ATYA-022 asks the Client to ship the handler "registered by AddAtyaHttpClient" while ATYA-132's removal of ASP.NET references applies: consistent, because the handler uses only `System.Diagnostics`.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Approve Tracing as the concept owner (recommended), instead of a Foundation package? A Foundation placement would be a new package, which Plan v2 forbids.
-2. Unlisted `new Activity(...).Start()` fallback (recommended) or an `AsyncLocal<string?>` carrier in Tracing? The Activity route leans on Activity semantics; `AsyncLocal` is ambient state but independent of listeners.
-3. Default charset (alphanumeric plus `- _ . :`) and 128-character limit: acceptable? Base64-style ids with `+`, `/`, `=` would be regenerated.
-4. Is the Tracing `WriteTo` key correction acceptable as a behavioural change in a minor release?
+- Tracing owns the correlation concept (approved); no new package.
+- Carrier changed: `CorrelationContext` (AsyncLocal) in Tracing; when an Activity exists the `correlation.id` tag is also set. No Activity baggage and no manufactured Activity (baggage would reach third parties; a manufactured Activity changes `Activity.Current` app-wide). The Client handler adds the header explicitly.
+- Default charset (alphanumeric plus `- _ . :`) and 128-character limit accepted.
+- The `TraceContextSnapshot.WriteTo` header-key fix is accepted as a behavioural fix in a minor, shipped in Tracing 1.2.0 with this work, not in Wave 1's Tracing 1.1.0.

@@ -37,7 +37,7 @@ public interface IOutboxStore
 }
 public sealed record OutboxFailure(string ErrorType, string Description, string? Handle);  // bounded, sanitized
 public sealed class OutboxContractRegistry { Register<T>(string contractName, int schemaVersion = 1); ... }  // frozen at build
-public sealed class OutboxRelayOptions { MaxAttempts=5; ClaimLease=2m; BatchSize; Backoff{Initial=5s, Max=15m, Factor=2, Jitter=0.2};
+public sealed class OutboxRelayOptions { MaxAttempts=5; ClaimLease=2m; BatchSize; Backoff{Initial=5s, Max=15m, Factor=2, JitterFactor=0.2};
     Func<Exception, OutboxFailure> DescribeFailure; int MaxFailureLength=512; }
 public sealed class OutboxRelay(IOutboxStore, IMessagePublisher, TimeProvider, OutboxContractRegistry, OutboxRelayOptions);
 ```
@@ -48,7 +48,7 @@ public sealed class OutboxRelay(IOutboxStore, IMessagePublisher, TimeProvider, O
 
 - Claim: one atomic operation selects up to `maxCount` rows that are Pending with `NextAttemptAt <= now`, or Claimed with `LeaseExpiresAt <= now`, orders by `NextAttemptAt` then `OccurredAt`, stamps owner, a fresh token and expiry, and returns them. Expired claims are reclaimed by the same operation, so a crashed relay needs no recovery job.
 - Every later transition is a compare-and-set on (id, token). A relay whose lease expired gets `ClaimLost` and must not publish further from that batch. The relay checks remaining lease before each publish and renews when under half.
-- Backoff: `delay = min(Max, Initial * Factor^(attempt-1))` with jitter drawn from an injectable source, so tests are deterministic. `NextAttemptAt = now + delay` from `TimeProvider`.
+- Backoff: `delay = min(Max, Initial * Factor^(attempt-1))` adjusted by `Random.Shared` within `JitterFactor` (0 to 1, default 0.2); tests set `JitterFactor = 0`, so they are deterministic. `NextAttemptAt = now + delay` from `TimeProvider`.
 - Terminal classes: unknown contract name or deserialization failure is terminal on first sight (the data will never become valid); attempts exhausted is terminal; everything else is retryable.
 - Failure diagnostics (ATYA-146): `OutboxFailure` carries the exception type name, a description truncated to `MaxFailureLength` after redaction, and a handle (a GUID) under which the full exception is logged through `ILogger`. Default description is the type name only, and the message text is included only through a caller-supplied `DescribeFailure`. Stack traces are not persisted (ATYA-058 asks for "type + truncated stack"; stacks leak paths and types, so they go to the log under the handle). One schema migration covers both `NextAttemptAt` and the failure fields.
 - Publish vs acknowledge: publish failure and acknowledge failure are separate. If `MarkPublishedAsync` throws after a successful publish, the relay does not record a failure; the claim lease expires and the row is re-sent. This is the documented at-least-once window; consumers pair with Idempotency using `MessageId` as key.
@@ -66,7 +66,7 @@ public sealed class OutboxRelay(IOutboxStore, IMessagePublisher, TimeProvider, O
 
 ## Migration for consumers
 
-Breaking for store implementers, for code constructing `OutboxRelay` (takes `TimeProvider`, options, registry), and for stored data: rows written by 1.x carry AQNs. Provide a one-time mapping helper (`OutboxContractRegistry.MapLegacyTypeName(aqn, contractName)`) so a provider migration can rewrite old rows. Without it, 1.x pending rows become terminal "unknown contract". Last compatible version is 1.x.
+Breaking for store implementers, for code constructing `OutboxRelay` (takes `TimeProvider`, options, registry), and for stored data: rows written by 1.x carry AQNs. No legacy mapping helper is shipped (no durable store exists yet): 1.x pending rows become terminal "unknown contract" failures. Last compatible version is 1.x.
 
 ## Test plan
 
@@ -85,9 +85,10 @@ Conformance suite as above plus unit tests for backoff arithmetic, registry, red
 - Hard dependencies are stale: ATYA-059 is Deferred, ATYA-112 (data-classification model named by ATYA-146) is Rejected in Plan v2, ATYA-006 is ADR-02. Proposal: reduce to ATYA-057 only if the shared "claim/fence" vocabulary is wanted; otherwise none.
 - The issues assume `IClock`; ADR-02 says `TimeProvider`.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Persist the stack trace at all? Recommended: no.
-2. Is a legacy-row mapping helper worth shipping, or is 2.0 allowed to strand 1.x rows?
-3. Should the claim lease and token be per batch (recommended, simpler; renewal extends the whole claim) or per message?
-4. Jitter source: inject `Random`-like function (recommended) or use `Random.Shared`?
+- No stack traces persisted; the stack goes to the log under the failure handle.
+- No legacy-row mapping helper.
+- One claim token per batch; renewal extends the whole claim.
+- Jitter uses `Random.Shared` scaled by an options value `JitterFactor` (0 to 1); tests set it to 0. No injected random source.
+- Upcasters remain deferred.

@@ -85,8 +85,9 @@ Generator tests (Roslyn driver) for records, multi-interface, duplicates, open g
 - ATYA-062 hard dependency ATYA-033 is Deferred in Plan v2; ATYA-002 is the verification batch. Proposal: keep only ATYA-062 to ATYA-142 ordering (same repository).
 - ATYA-062 says "any future breaking internalization requires a separate benchmark-backed ADR". Internalising the two dispatcher interfaces is that kind of change. Because 2.0.0 is already breaking, I propose it ships here without an ADR, but the owner may prefer to keep them public and `[Obsolete]`.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Internalise the dispatcher interfaces now (recommended) or keep them public and obsolete until a later major?
-2. Handler lifetime default: Transient (current, recommended) or Scoped?
-3. Should the lifetime attribute live in `Atya.Application.Mediator` (needs no new package) or be a generator-owned constant? Recommended: in the runtime package.
+- Dispatcher interfaces are internalised in 2.0.0.
+- Handler default lifetime is Transient.
+- The lifetime attribute lives in the `Atya.Application.Mediator` runtime package.
+- `IMediator` stays Scoped (the ATYA-142 singleton step is not adopted).

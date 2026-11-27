@@ -3,9 +3,9 @@
 Status: Proposed for owner review. No code. Read against `ProblemDetails` `development` at `7310b7b`.
 Fixed by the owner: symmetric customization, one constructor, trace id from `Activity.TraceId` (not `Activity.Id`), 429/503/504 rows using the new `ErrorKind` values `Unavailable`, `Timeout`, `TooManyRequests`.
 
-## Prerequisite the issues do not state
+## Prerequisite
 
-`Foundation.Results` on `development` has `ErrorKind` up to `Unexpected = 6`. `Unavailable`, `Timeout` and `TooManyRequests` do not exist yet. They belong to ATYA-045, which is **Deferred** in Plan v2, yet ATYA-053 and ATYA-023 cannot compile their rows without it. ATYA-045 needs to be un-deferred (it is an additive enum change plus the normative mapping table below) and released as a Results minor before ProblemDetails 2.0.0. Appending values is source-compatible but breaks exhaustive `switch` expressions in consumers; release notes must say so.
+`Foundation.Results` on `development` has `ErrorKind` up to `Unexpected = 6`. The owner approved adding `Unavailable = 7`, `Timeout = 8` and `TooManyRequests = 9` in Results 1.2.0 (Wave 1), which supersedes ATYA-045's deferral for these three values. ProblemDetails 2.0.0 depends on Results 1.2.0. Appending values is source-compatible but breaks exhaustive `switch` expressions in consumers; release notes must say so.
 
 ## Problem
 
@@ -47,7 +47,7 @@ Interfaces `IExceptionToProblemDetailsMapper` and `IResultToProblemDetailsMapper
 | Unavailable | 503 | Service Unavailable | `urn:atya:problem-type:service-unavailable` | masked (5xx policy, ATYA-014) |
 | Timeout | 504 | Gateway Timeout | `urn:atya:problem-type:gateway-timeout` | masked (5xx policy) |
 
-`Retry-After` is not emitted (an `Error` carries no retry hint); see open question 2.
+`Retry-After` is not emitted (an `Error` carries no retry hint); decided: no `Retry-After` for now.
 
 ## Behaviour
 
@@ -88,13 +88,14 @@ Unit and pipeline tests as above, extending the existing test files; byte-level 
 
 ## Contradictions with ADRs and the plan
 
-- ATYA-053's 429/503/504 rows depend on ATYA-045, which Plan v2 defers (see prerequisite). The same applies to hard dependencies ATYA-009 (wire contract, Deferred), and ATYA-025 and ATYA-066 (hard dependencies of ATYA-143 and ATYA-144, both Deferred): stale for this scope.
+- ATYA-053's 429/503/504 rows depend on the three `ErrorKind` values; ATYA-045's deferral is superseded for them (see prerequisite). The same applies to hard dependencies ATYA-009 (wire contract, Deferred), and ATYA-025 and ATYA-066 (hard dependencies of ATYA-143 and ATYA-144, both Deferred): stale for this scope.
 - ATYA-144 step 2 falls back to `Activity.Id` for hierarchical format. The owner's decision is `Activity.TraceId`; for hierarchical activities this design falls back to `TraceIdentifier` instead, so no response ever carries a non-APM value.
 - ATYA-143 step 4 asks for a "one-public-constructor" analyzer in Governance.CodeQuality. Out of scope here (CodeQuality is SDK-injected); not proposed.
 - ATYA-053 says "old property kept as sugar"; this design marks it obsolete. Owner choice.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Keep `CustomizeProblemDetails` obsolete (recommended) or keep it as plain, supported sugar?
-2. Emit `Retry-After` for 429/503? It would need a hint on `Error` (Results change). Recommended: no, later.
-3. Mask 503/504 detail by default (recommended, ATYA-014 consistency) or show it?
+- `CustomizeProblemDetails` is `[Obsolete]` in 2.0 (sugar, exception path only).
+- No `Retry-After` for now.
+- 503/504 detail is masked by default.
+- `ErrorKind` values come from Results 1.2.0 (7, 8, 9); this supersedes ATYA-045's deferral for them.

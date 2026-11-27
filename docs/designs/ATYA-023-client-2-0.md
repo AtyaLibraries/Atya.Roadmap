@@ -88,11 +88,13 @@ Handler-stub unit tests for 1-6; packed-consumer restore fixtures for 7 (CI job 
 
 - **ATYA-132 step 1 creates `Atya.Errors.ProblemDetails.Abstractions`.** That contradicts the Plan v2 rule "no new packages until ATYA-075 and ATYA-153 are done" and the Constitution's "extract, never invent" rule for abstractions packages. The owner's decision (internal type) replaces it, so ATYA-132 should be rewritten accordingly and its PackageId/allowlist/manifest steps dropped.
 - ATYA-023 and ATYA-132 hard-depend on ATYA-009 and ATYA-032, ATYA-052 (all Deferred). The ADR-less wire contract is replaced by item 8 above; revisit if ATYA-009 is ever un-deferred.
-- The kinds `Unavailable`, `Timeout`, `TooManyRequests` need the Results release (ATYA-045, Deferred; see ATYA-053 design). Until then the client could only emit `Unexpected`/`Failure`.
+- The kinds `Unavailable`, `Timeout`, `TooManyRequests` come from Results 1.2.0 (values 7, 8, 9), approved by the owner; this supersedes ATYA-045's deferral for them. Client 2.0.0 depends on Results 1.2.0.
 - ATYA-023 asks that body disagreement "yields diagnostics". `Error` has no diagnostics field; this design uses logging.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Add `ILogger<AtyaHttpClient>` as a constructor dependency (recommended; the connection failure is otherwise invisible)? It is a breaking constructor change.
-2. Default `MaxResponseBodyBytes` of 1 MiB: right for your consumers, or larger?
-3. Keep `OriginAndPath` as the default target, or `Origin` only (safer, less useful)?
+- `ILogger<AtyaHttpClient>` is a constructor dependency.
+- `MaxResponseBodyBytes` defaults to 1 MiB and is configurable.
+- Error target is origin plus path; query string and user info are stripped.
+- Internal RFC 9457 type, no new package (ATYA-132 as written here).
+- Correlation: the handler reads `CorrelationContext` (see ATYA-022), not Activity baggage.

@@ -38,7 +38,7 @@ IServiceCollection AddAtyaWebMiddleware(this IServiceCollection, ...)    // idem
 - **Mapped shapes preserved.** The mapped `ProblemDetails` object is returned through an internal `IResult` that sets the status code, sets `application/problem+json`, and serializes with the **runtime** type so derived properties and extensions survive. It reads `Microsoft.AspNetCore.Http.Json.JsonOptions` from the request services. Implementation must first test `Results.Problem(ProblemDetails)` / `TypedResults.Problem`; if those serialize the declared base type, the internal result is required. Acceptance stays: a derived problem round-trips with extra properties intact.
 - **Success policy.** Defaults reproduce today (204 for `Result`, 200 for `Result<T>`). `Created(...)` returns 201 with `Location`; `WithHeader` adds a header. No overload matrix; any new shape is a new factory on `HttpSuccess`.
 - **Registration.** `UseAtyaWebMiddleware` records a marker in `app.Properties`; a second call is a no-op. `AddAtyaWebMiddleware` adds a marker singleton and registers the accessor wiring only when the marker was newly added, and wiring is `PostConfigure<AtyaProblemDetailsOptions>` so any consumer `Configure` runs first and the consumer accessor becomes the fallback (ATYA-145). Failure mode when the pipeline was built without `AddAtyaWebMiddleware`: `InvalidOperationException` naming the missing call (as today for the mapper).
-- **Correlation header.** `InvokeAsync` registers `Response.OnStarting` that writes the header from the feature, overwriting any value, and keeps the eager write. `OnStarting` callbacks and `HttpContext.Features` survive `Response.Clear()` (ATYA-139). It also performs the ATYA-022 steps: validate or regenerate the inbound id, begin a logger scope with `KnownLogPropertyNames.CorrelationId`, and set `Activity` tag and baggage.
+- **Correlation header.** `InvokeAsync` registers `Response.OnStarting` that writes the header from the feature, overwriting any value, and keeps the eager write. `OnStarting` callbacks and `HttpContext.Features` survive `Response.Clear()` (ATYA-139). It also performs the ATYA-022 steps: validate or regenerate the inbound id, begin a logger scope with `KnownLogPropertyNames.CorrelationId`, and push `CorrelationContext` (which tags `Activity.Current` when one exists).
 - **Status rows.** Middleware owns no table. `Error` kinds `TooManyRequests`, `Unavailable`, `Timeout` map to 429, 503 and 504 in ProblemDetails 2.0; Middleware proves them end to end.
 
 ## Invariants and how tests prove them
@@ -75,8 +75,9 @@ TestServer pipeline tests above; the SP-08 regression named in the issue; a pack
 - ATYA-055 hard dependencies ATYA-034 (Deferred) and ATYA-002 are stale for this scope.
 - No ADR conflict.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Second `UseAtyaWebMiddleware` call: silent no-op (recommended) or throw?
-2. Should `HttpSuccess` live in this package (recommended) or be left to callers?
-3. Is the internal `IResult` acceptable, given it takes over serialization options, or do you prefer relying on `TypedResults.Problem` if it preserves derived shapes? Implementation will test and report.
+- A second `UseAtyaWebMiddleware` call is a silent no-op.
+- `HttpSuccess` lives in Middleware; Results stays HTTP-free.
+- The internal `IResult` is acceptable; prefer `TypedResults.Problem` if it preserves the derived shape.
+- Correlation behaviour follows the revised ATYA-022 design (`CorrelationContext` carrier, no Activity baggage).

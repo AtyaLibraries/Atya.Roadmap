@@ -63,7 +63,7 @@ public sealed record IdempotencyCallOptions       // per-call overrides, all nul
 
 - Finalization (`Complete`/`Abandon`) uses `CancellationToken.None` linked to a `CancellationTokenSource(FinalizationTimeout, timeProvider)`, never the caller's token (ADR-12).
 - A `Superseded` completion does not change the result returned to the caller. The caller already holds a valid result, so the executor returns it and does not throw.
-- If finalization fails or times out, the lease simply expires. Recommended: swallow, never replace the operation's result, report through an optional `Action<IdempotencyFinalizationFailure>` on the options (Idempotency has no logger dependency). See open question 2.
+- If finalization fails or times out, the lease simply expires. Decided: swallow, never replace the operation's result, notify an optional `Action<IdempotencyFinalizationFailure>` on the options, and also log at Error through an `ILogger<IdempotentExecutor>` (new constructor parameter; adds a `Microsoft.Extensions.Logging.Abstractions` reference with README justification).
 - Late completion by an expired owner that nobody superseded is accepted: the rule is fence equality, not clock comparison. This matches ADR-12 row "expired owner's completion is rejected" only after a new owner began, and ATYA-057's acceptance wording.
 - `requestFingerprint` (optional): same key with a different fingerprint returns `PayloadMismatch` (Conflict, `atya.application.idempotency.payload_mismatch`). A `TValue` mismatch on replay returns the same failure instead of throwing.
 
@@ -75,7 +75,7 @@ public sealed record IdempotencyCallOptions       // per-call overrides, all nul
 4. ADR-12 table, every row, for both policies, in a table-driven store conformance test.
 5. Finalization survives a cancelled caller token and a disposed caller scope.
 6. Bounded store: entry count never exceeds `MaxEntries` (default 10,000) after any call. Expired entries are purged by expiry order (priority queue) at every mutating call, so cleanup is deterministic under `FakeTimeProvider`. At capacity after purge, `TryBegin` returns `CapacityExceeded` and the executor returns a failure `Result` (`atya.application.idempotency.capacity_exceeded`).
-7. Production guard: `IsEphemeral` is true for the in-memory store. A new `AddAtyaIdempotency` extension fails `ValidateOnStart` in a Production host environment unless `AllowEphemeralStore` is set.
+7. No environment guard (decided). The in-memory store is documented as single-process only; `IsEphemeral` stays as informational metadata on the store contract.
 
 The conformance suite is the migration contract for any store (`ATYA-153` is its first external consumer).
 
@@ -93,7 +93,7 @@ Unit tests per invariant above; a conformance base class `IdempotencyStoreConfor
 ## PR breakdown
 
 1. Contract + executor + in-memory store with fencing, abandon, policy, `TimeProvider` (one PR; the contract is indivisible).
-2. Capacity, purge and `IsEphemeral` guard, DI extension.
+2. Capacity, purge and single-process documentation.
 3. Conformance suite extraction, docs, migration notes.
 
 ## Contradictions with ADRs and the plan
@@ -103,10 +103,11 @@ Unit tests per invariant above; a conformance base class `IdempotencyStoreConfor
 - Hard dependencies on ATYA-051 and ATYA-122 are stale: 122 is ADR-12 (done), 051 is Deferred. Proposal: clear them from the issue (not done here).
 - After this change the `Atya.Foundation.Time` edge in the Constitution matrix is no longer needed for Idempotency.
 
-## Open questions for the owner
+## Decisions (2026-11-27)
 
-1. Request fingerprint: in scope now, or only typed-replay mismatch? Recommended: in scope, optional, null means unchecked.
-2. Finalization failure: swallow with an observer (recommended) or throw?
-3. Auto-renewal heartbeat in the executor: leave to callers (recommended, `RenewAsync` is exposed) or opt-in timer?
-4. Where does the conformance suite live so provider repos can reuse it, given the rule against depending on another package's test assets and the no-new-packages rule? Recommended: in-repo now, decide with ATYA-153.
-5. `AddAtyaIdempotency` adds a `Microsoft.Extensions.Hosting.Abstractions` reference (README justification needed). Accept, or warn-only via `IsEphemeral`?
+- Request fingerprint: in scope now, optional (null means unchecked).
+- Finalization failure: swallow, notify the observer, also log at Error; the operation's result is always returned to the caller.
+- No auto-renewal; `RenewAsync` stays on the store contract for callers.
+- Conformance suite lives in this repository now; publication is revisited with ATYA-153.
+- No `Microsoft.Extensions.Hosting.Abstractions` reference, no environment guard and no `AddAtyaIdempotency` extension. The README states the in-memory store is single-process only.
+- `Microsoft.Extensions.Logging.Abstractions` is added for the Error log (follows from the finalization decision).
