@@ -15,7 +15,7 @@ Status: Proposed for owner review. Design documents only; no library code, no is
 
 ## Cross-cutting findings
 
-1. **The new `ErrorKind` values do not exist yet.** `Foundation.Results` on `development` ends at `Unexpected`. `Unavailable`, `Timeout` and `TooManyRequests` are ATYA-045, which Plan v2 defers. ATYA-053, 055 and 023 cannot ship their 429/503/504 behaviour until a Results minor with those values is released.
+1. **The new `ErrorKind` values arrive in Results 1.2.0.** `Unavailable`, `Timeout` and `TooManyRequests` (values 7, 8, 9) are added in Results 1.2.0 (owner decision), which supersedes ATYA-045's deferral for them. ATYA-053, 055 and 023 depend on that release.
 2. **The issues still say `IClock`.** ATYA-057, 058, 140 and 021 assume `IClock` and the Governance.Testing `FakeClock` (ATYA-051, Deferred). ADR-02 says `TimeProvider`; the designs use it and `FakeTimeProvider`. After 057 and 058 ship, `Atya.Foundation.Time` has no internal consumer.
 3. **Stale hard dependencies.** Many "hard dependencies" point at items Plan v2 deferred or rejected (for example 051, 059, 033, 034, 009, 025, 066 Deferred; 112 Rejected). Plan v2 says Blocked items keep only real code-order dependencies. The designs name the real ones; the issues are untouched.
 4. **ATYA-132 creates a new package** (`Atya.Errors.ProblemDetails.Abstractions`), against the Plan v2 "no new packages" rule. The owner's decision (an internal RFC 9457 type in the Client) replaces it.
@@ -25,7 +25,7 @@ Status: Proposed for owner review. Design documents only; no library code, no is
 
 ## Suggested release order
 
-Results (new kinds) and Tracing (correlation policy) first, then ProblemDetails 2.0.0, Middleware 2.0.0 and Client 2.0.0. Idempotency, Outbox, Mediator and BackgroundServices are independent of that chain and of each other, except that the Outbox relay recipe consumes BackgroundServices 2.0.0.
+Results 1.2.0 (Wave 1, already in flight) and Tracing 1.2.0 (correlation policy) first, then ProblemDetails 2.0.0, Middleware 2.0.0 and Client 2.0.0. Idempotency, Outbox, Mediator and BackgroundServices are independent of that chain and of each other, except that the Outbox relay recipe consumes BackgroundServices 2.0.0.
 
 ## Constitution edges (approve separately in `platform`)
 
