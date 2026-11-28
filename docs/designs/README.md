@@ -12,6 +12,7 @@ Status: Proposed for owner review. Design documents only; no library code, no is
 | [ATYA-055](ATYA-055-middleware-2-0.md) | 055, 139, 145 | Web.Middleware 2.0.0 |
 | [ATYA-023](ATYA-023-client-2-0.md) | 023, 138, 132 | Http.Client 2.0.0 |
 | [ATYA-022](ATYA-022-correlation.md) | 022 | Tracing, Middleware, Client, ProblemDetails, Logging |
+| [ATYA-075](ATYA-075-reference-app.md) | 075 | Golden API + worker in `Atya/reference/` (no package) and the composition readiness gate |
 
 ## Cross-cutting findings
 
