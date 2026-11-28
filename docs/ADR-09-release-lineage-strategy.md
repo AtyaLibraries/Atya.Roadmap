@@ -1,6 +1,6 @@
 # ADR-09: Release-lineage strategy
 
-Status: Accepted for ATYA-003 implementation
+Status: Superseded by ADR-13 (2026-11-28)
 
 Date: 2026-07-21
 
