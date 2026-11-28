@@ -1,6 +1,6 @@
 # ATYA-153: First durable provider for the outbox and idempotency stores
 
-Status: Proposed for Coordinator review, with owner decisions flagged. Design only: no library code, no issue, board or platform changes.
+Status: Accepted 2026-11-28. D1 was decided by the owner (two adapter packages). D2 and the design choices were approved by the Coordinator. Design only: no library code, no issue, board or platform changes.
 Read against `AtyaLibraries/Atya` `main` at `5030493`: `Atya.Messaging.Outbox` 2.0.0 and `Atya.Application.Idempotency` 2.0.0 are released (tags `…/v2.0.0`), so the hard dependencies ATYA-057 and ATYA-058 are met.
 Inputs: issue AtyaLibraries/Atya#11, PLAN-V2, ADR-01, ADR-02, ADR-10, ADR-12, ADR-13, ADR-14, the ATYA-057 and ATYA-058 designs, `platform/CONSTITUTION.md` and `ecosystem.json` (with platform PR #130 applied), and the Admin Platform direction (PostgreSQL, one schema per module).
 
@@ -11,26 +11,27 @@ Inputs: issue AtyaLibraries/Atya#11, PLAN-V2, ADR-01, ADR-02, ADR-10, ADR-12, AD
 - Time always comes from the application's `TimeProvider` and is sent to SQL as parameters. The database clock is never read, so the existing conformance suites (which use `FakeTimeProvider`) run unchanged against the database.
 - Schema: versioned, idempotent SQL scripts shipped in the package. Adopters apply them with their own migration tool (EF Core `migrationBuilder.Sql(...)`, DbUp, Flyway or psql). A helper exists for tests and development. The schema name is configurable, so it fits the "one schema per module" setup.
 - Tests run on real PostgreSQL through Testcontainers on `ubuntu-latest`. The two existing conformance suites run unchanged, alongside extra multi-process race tests.
-- **Package shape needs the owner (D1).** A single package covering both stores cannot satisfy the Constitution's layering and naming rules. The recommendation is two thin adapter packages. If the owner holds to one package, there is a fallback.
+- **Package shape (D1, decided by the owner on 2026-11-28):** two thin adapter packages, `Atya.Messaging.Outbox.PostgreSql` and `Atya.Application.Idempotency.PostgreSql`.
 
-## D1: Package shape (owner decision, flagged)
+## D1: Package shape (decided by the owner, 2026-11-28)
 
-The owner allows exactly one new public package. One package that implements both `IOutboxStore` (Messaging layer) and `IIdempotencyStore` (Application layer) collides with three Constitution rules:
+**Decision:** two adapter packages:
+- `Atya.Messaging.Outbox.PostgreSql`, which implements `IOutboxStore`
+- `Atya.Application.Idempotency.PostgreSql`, which implements `IIdempotencyStore`
 
-1. **Layering** (one-way, downward: Foundation → Errors/Diagnostics → Http/Hosting/Messaging/Data → Web/Application). A Messaging-area package cannot depend on `Atya.Application.Idempotency` because that edge points upward. A Data-area package has the same problem. So a single package can only live in the Application area.
-2. **Provider naming.** "A fourth segment (`Atya.{Area}.{Name}.{Provider}`) MAY be used only for provider adapters of an existing Atya package", and the provider pattern says adapters "depend on the Atya contract package and the external client". An adapter for two packages has no correct `{Name}`.
-3. **Area scope.** The Application area lists persistence under "not allowed". The catalog already parks the outbox adapter as `Atya.Messaging.Outbox.EntityFrameworkCore` (trigger: the first real adopter needs a durable store).
+Why one combined package was rejected: it collides with three Constitution rules.
+- **Layering** (one-way, downward: Foundation → Errors/Diagnostics → Http/Hosting/Messaging/Data → Web/Application). A Messaging-area package cannot depend on `Atya.Application.Idempotency`.
+- **Provider naming.** The fourth segment (`Atya.{Area}.{Name}.{Provider}`) is reserved for adapters of *one* existing package.
+- **Area scope.** The Application area lists persistence under "not allowed".
 
-| Option | Ids | Constitution | Cost |
-|---|---|---|---|
-| **A (recommended)** | `Atya.Messaging.Outbox.PostgreSql` and `Atya.Application.Idempotency.PostgreSql` | Fully compliant: fourth-segment adapters, downward edges only, each one usable alone. The parked catalog row graduates (renamed `…PostgreSql`, see D2) and one row is added. | **Two public packages: needs the owner.** About 150 lines of shared internal helpers (identifier validation, schema-script runner) are compiled into both through a linked source file. That is not a package and adds no API. |
-| B (fallback within the allowance) | `Atya.Application.PostgreSql`, holding both stores | Needs an amendment for naming (a three-segment adapter), for the Application scope (persistence) and for the edge Application → Messaging.Outbox. An outbox-only adopter also has to take Idempotency. | One package. **It cannot be split later without breaking:** package ids and namespaces would change, which means a new major version and new ids. |
+The two adapters are fully compliant:
+- each is a fourth-segment adapter with downward edges only, and each is usable alone
+- the parked catalog row `Atya.Messaging.Outbox.EntityFrameworkCore` graduates, renamed to `…PostgreSql` per D2
+- about 150 lines of shared internal helpers (identifier validation, schema-script runner) are compiled into both through a linked source file; that is neither a package nor public API
 
-Recommendation: choose **A**. B saves one package id now and costs a breaking re-shape later. Everything else in this document (SQL, API, tests) is identical under A and B. Only the `.csproj` boundaries and namespaces differ. The rest of this document is written for A. Under B, read `Atya.Application.PostgreSql` for both namespaces.
+The Constitution amendment and the allowlist entries this needs are implementation steps 1 and 2 under "Versioning and release plan".
 
-Either option needs a Constitution amendment (catalog row(s), the PARK → BUILD graduation, matrix edges). That amendment is the owner's step, and it comes **before** the first release (Constitution "amend before build").
-
-## D2: ADO.NET over a `DbDataSource`, not an EF Core dependency (Coordinator decision)
+## D2: ADO.NET over a `DbDataSource`, not an EF Core dependency (approved by the Coordinator, 2026-11-28)
 
 The issue says "EF Core / PostgreSQL". This design keeps PostgreSQL and moves EF Core from a dependency to a supported, tested recipe. Reasons:
 
@@ -39,7 +40,7 @@ The issue says "EF Core / PostgreSQL". This design keeps PostgreSQL and moves EF
 - **Zero third-party runtime dependencies.** No "Why this dependency" section is needed, and no EF Core or Npgsql version line is forced on adopters. That matters because EF Core and Npgsql 11.x target `net11.0` only, while Atya targets `net10.0` (ADR-01). It works with EF Core, Dapper and raw Npgsql alike. Atya.Admin currently uses raw Npgsql.
 - EF Core adopters get the outbox insert into their transaction with one registration line (see the API section). The integration tests prove the EF Core path end to end (commit and rollback with `SaveChangesAsync`).
 
-Consequence: the provider segment is `PostgreSql`, not `EntityFrameworkCore`. If the owner prefers the EF Core dependency, the store internals stay the same and the public surface gains a `TContext : DbContext` type parameter. That needs a Constitution exception for provider packages.
+Consequence: the provider segment is `PostgreSql`, not `EntityFrameworkCore`.
 
 ## Package
 
@@ -278,7 +279,7 @@ SELECT EXISTS (SELECT 1 FROM u) AS applied,
 
 ## Public API surface
 
-Under option A each package holds only the types below. Everything else is `internal`.
+Each package holds only the types below. Everything else is `internal`.
 
 ```csharp
 namespace Atya.Messaging.Outbox.PostgreSql;
@@ -417,8 +418,15 @@ The README states that with `EnableRetryOnFailure`, the transaction block must r
 
 ## Versioning and release plan
 
-1. **Owner:** decide D1. Merge the Constitution amendment (catalog row or rows: graduate `Atya.Messaging.Outbox.EntityFrameworkCore` from PARK and rename it per D2, plus the idempotency adapter row; matrix edges; `ecosystem.json` entries with `targetFrameworks: ["net10.0"]`). This goes on top of platform PR #130.
-2. **Coordinator review (security-sensitive, rule 9):** a publisher allowlist PR regenerated from `ecosystem.json`, mapping the new id(s) to repository `Atya`.
+1. **Constitution amendment (platform, owner merge).** This goes on top of platform PR #130 and must merge before the first release ("amend before build").
+   - Catalog entries:
+     - graduate `Atya.Messaging.Outbox.EntityFrameworkCore` from PARK to BUILD, renamed `Atya.Messaging.Outbox.PostgreSql` (area Messaging)
+     - add `Atya.Application.Idempotency.PostgreSql` (area Application)
+     - in `ecosystem.json`, each entry has `targetFrameworks: ["net10.0"]`, `publish: true` and `publishingRoute: "central"`, and the generated catalog is regenerated
+   - Matrix edges (`allowedDependencies`; Guards and Results need no amendment):
+     - `Atya.Messaging.Outbox.PostgreSql` → `Atya.Messaging.Outbox`, `Atya.Foundation.Guards`
+     - `Atya.Application.Idempotency.PostgreSql` → `Atya.Application.Idempotency`, `Atya.Foundation.Results`, `Atya.Foundation.Guards`, `Atya.Foundation.Serialization`
+2. **Publisher allowlist (security-sensitive, Coordinator review before merge, rule 9).** Regenerate it from `ecosystem.json` so that both ids map to repository `AtyaLibraries/Atya`.
 3. **Implementation PRs in `Atya`**, one package at a time, in this order:
    1. Idempotency provider. Its race semantics are the simplest, and it unblocks Admin's API work.
    2. Outbox provider.
@@ -437,8 +445,8 @@ Package ids, the matrix and the release each need the owner's or Coordinator's s
 
 | # | Item | Recommendation |
 |---|---|---|
-| D1 | One package versus two (layering, naming, scope) | **Owner:** choose two adapters (option A). Use B only if the one-package limit is firm, and accept that it cannot be split later without breaking. |
-| D2 | ADO.NET over `DbDataSource` instead of an EF Core dependency (deviates from the issue wording) | **Coordinator:** approve. It keeps third-party types out of the public API and adds zero runtime dependencies. EF Core is proven by test 5. |
+| D1 | One package versus two (layering, naming, scope) | **Decided by the owner on 2026-11-28:** two adapters. |
+| D2 | ADO.NET over `DbDataSource` instead of an EF Core dependency (deviates from the issue wording) | **Approved by the Coordinator.** It keeps third-party types out of the public API and adds zero runtime dependencies. EF Core is proven by test 5. |
 | R1 | Clock skew between hosts: application time decides lease expiry, so a host with a fast clock can reclaim a live lease early and cause one duplicate publish (at-least-once already allows this; fencing stops stale state writes) | Keep application time; it is required for contract parity and the conformance suite. Document "lease ≫ expected skew" (default lease 2 minutes against NTP-level skew). A `UseDatabaseClock` option is deferred until someone needs it. |
 | R2 | Windows CI leg cannot run Linux containers | Use an explicit skip on Windows and the mandatory Docker gate on ubuntu (`ATYA_REQUIRE_DOCKER=1`). |
 | R3 | Caller forgets the explicit transaction (EF Core implicit `SaveChanges`) | `RequireTransaction = true` by default fails fast. Provide the README recipe. |
