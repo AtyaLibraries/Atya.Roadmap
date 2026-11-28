@@ -1,6 +1,6 @@
 # ATYA-075: Composition readiness gate and golden reference applications
 
-Status: Proposed for Coordinator review, with decisions flagged. Design only: no code, no issue, board or platform changes.
+Status: Accepted by the Coordinator on 2026-11-28: D1–D5 and the "gate passed" definition. Design only: no code, no issue, board or platform changes.
 Read against `AtyaLibraries/Atya` `main` (CI: `.github/workflows/ci.yml`; the release tags listed below), issue Atya.Roadmap#32, PLAN-V2, ADR-13, ADR-14, and `platform/CONSTITUTION.md`.
 
 ## Summary
@@ -14,7 +14,7 @@ Read against `AtyaLibraries/Atya` `main` (CI: `.github/workflows/ci.yml`; the re
   A dispatchable **evidence run** adds checks that must not turn `main` red when a release lands: version currency, provenance and package coverage. It writes the report that marks ATYA-075 Done.
 - The scenario tests cover the issue's list: restore, build and test from packed packages; 5xx secrecy; validation round trips; cancellation; health; correlation and telemetry; idempotency; the outbox and worker lifecycle; release provenance.
 - The design uses none of the Deferred items (009, 025, 051, 052, 063) and none of ATYA-153's provider: the in-memory stores are used throughout.
-- **Finding:** Errors.ProblemDetails 2.0.0 still writes validation errors as a JSON **array** on the exception path and as an object map on the Result path. Http.Client 2.0.0 reads only the map. So "validation round trips" cannot fully pass on the published set while ATYA-052 (the fix) is Deferred. Decision R1.
+- **Validation round trips on both paths.** ATYA-148 (Atya#39, `Testing.UnitTests` `ValidationWireContract*`) proved that Http.Client 2.0.0's `ProblemErrorMapper.ReadDetails` reads both the object map (Result path) and the array (exception path), and rebuilds every detail with the same targets and codes. Only the exception path's *wire shape* differs from the golden fixture. 148's characterization test pins that divergence; it is not re-pinned here.
 
 ## Where the applications live
 
@@ -78,12 +78,12 @@ All versions below are the **latest stable on nuget.org on 2026-11-28**, matchin
 
 Not composed, with reasons recorded in `reference/README.md` and checked by the coverage script:
 - `Atya.Foundation.Abstractions`: transitive only.
-- `Atya.Governance.Testing`: not needed while ATYA-051 is Deferred. Tests use `Microsoft.Extensions.TimeProvider.Testing`. It becomes a test dependency when ATYA-148 ships (see Tests).
 - `Atya.Governance.CodeQuality`: a library analyzer pack, under overhaul in ATYA-025 (Deferred). Adopting it in application code is not a documented scenario (Q2).
 - Excluded as build tools or templates rather than runtime libraries: `Atya.Build.Sdk`, `Atya.Tooling.Cli`, `Atya.Templates.*`.
 
 Test-only third-party packages in `reference/Directory.Packages.props`:
 - `Microsoft.AspNetCore.Mvc.Testing` 10.0.x
+- `Atya.Governance.Testing` 1.2.0 (published), for `ValidationWireSchema` from ATYA-148. Its fakes are not used while ATYA-051 is Deferred.
 - `Microsoft.Extensions.TimeProvider.Testing`
 - `OpenTelemetry.Exporter.InMemory`, on the same 1.15.x line that Atya.Diagnostics.OpenTelemetry 2.0.1 uses (pinned together)
 
@@ -119,8 +119,8 @@ There is one test project, `Atya.Reference.Tests` (xUnit v3 on MTP per ADR-10, t
 | # | Scenario | Asserts |
 |---|---|---|
 | A1 | Create order, then replay with the same `Idempotency-Key`, then the same key with a different body | `201`; the replay returns an identical body and the handler ran once; a different payload gives `409` with the `payload_mismatch` code |
-| A2 | Validation via a failure `Result` | `400` ProblemDetails with an `errors` object map; the **Atya Http.Client** returns a failure `Result` holding **every** field error with its code and target (wire round trip) |
-| A3 | Validation via a thrown `ValidationException` | See R1. Recommended: a known-gap test that asserts today's divergence (array on the wire, zero details in the client), named and linked to ATYA-148/052, so the fix flips it visibly |
+| A2 | Validation via a failure `Result` | `400` ProblemDetails. The wire body passes `ValidationWireSchema.AssertConforms`; the test host adds a contract endpoint returning exactly the golden fixture's failures through the reference app's real pipeline. The **Atya Http.Client** returns a failure `Result` with **every** field error, target and code. `POST /orders` with an invalid body is asserted through the client the same way. |
+| A3 | Validation via a thrown `ValidationException` | `400` ProblemDetails. The **Atya Http.Client** rebuilds **every** detail with the same targets and codes as A2 (full client round trip). The wire shape is not asserted here: ATYA-148's characterization test (`…_Exception_Path_Today_Writes_An_Array_…_ATYA_052`) owns that divergence until ATYA-052. |
 | A4 | 5xx secrecy | A thrown exception carrying a connection string and a nested inner exception, and an `Unexpected` failure `Result`, both give `500` with a generic `detail`. The body has no message text, stack, exception type or secret substring, and does carry the correlation/trace id (ATYA-014). The secret also never appears in captured logs below Error. |
 | A5 | Not found | `404` ProblemDetails with the stable `type`/`code` |
 | A6 | Client cancellation | Cancel during the slow endpoint. The handler's token is cancelled, no Error-level log or `500` body is produced, and the response follows Middleware 2.0's documented client-abort behaviour. If that behaviour is undocumented, the test records a finding issue; no fix is made under 075. |
@@ -133,12 +133,7 @@ There is one test project, `Atya.Reference.Tests` (xUnit v3 on MTP per ADR-10, t
 | W4 | Lifecycle | Invalid per-worker options fail host start with a clear validation error (ATYA-021). `StopAsync` cancels both periodic services within the shutdown timeout with no unobserved exceptions. |
 | W5 | Downstream failure | The API returns `503` or `500`. Http.Client yields a failure `Result` of the matching `ErrorKind`; the worker logs, retries next tick and does not crash. |
 
-**ATYA-148, once it ships.** ATYA-148 adds the shared, executable validation-wire definition and its golden fixture to `Atya.Governance.Testing`. When that version is published:
-- the test project references it
-- A2 (and A3, once ATYA-052 lands) also assert the raw JSON of both producers against the fixture
-- the client side is asserted by feeding the fixture to Http.Client
-
-Until then, A2 asserts the wire shape directly. Adopting 148 is a small follow-up PR and does not gate ATYA-075 (D2).
+**ATYA-148 (shipped).** The validation-wire contract is published in `Atya.Governance.Testing` 1.2.0 as `ValidationWireSchema` (`GoldenJson`, `AssertConforms`). A2 uses it from the first implementation PR, with no follow-up step.
 
 ## The readiness gate and where it runs
 
@@ -175,39 +170,39 @@ A `reference-gate.yml` workflow runs the published leg, then the slow and networ
 ## What counts as "gate passed" (ATYA-075 Done)
 
 1. The published leg is green on `main`, with `reference/Directory.Packages.props` at the latest stable version of every composed package.
-2. An evidence run on that commit is green, and its report is attached to Atya.Roadmap#32: currency, coverage, provenance, and every scenario A1–A9 and W1–W5 passing. Known-gap tests are allowed only with an owner-accepted caveat (R1).
+2. An evidence run on that commit is green, and its report is attached to Atya.Roadmap#32: currency, coverage, provenance, and every scenario A1–A9 and W1–W5 passing.
 3. The candidate leg exists. It is not required to be green.
 4. The issue is re-scoped:
    - the hard dependencies are reduced to the real ones (all closed: 013, 008, 014, 015, 017, 021, 022)
    - the Deferred 009, 025, 051, 052 and 063 are removed with a link to this design
    - the advisory ATYA-070 is recorded as an accepted caveat (the app uses bounded tags only)
-5. Items D3 and D4 are resolved as the Coordinator decides: either done, or split into their own issues.
+5. D3 is done: `platform/specs/ATYA-API-TEMPLATE.md` is merged, citing the reference `Program.cs` files.
+6. D4 is done: an issue form for new-package admission in Atya.Roadmap, referring to the Constitution's existing new-package test.
 
 When those hold, ATYA-075 is Done. That releases the PLAN-V2 rule "no new packages or templates until ATYA-075 and ATYA-153 are done" from 075's side, and unblocks the templates task ATYA-079, which builds from these compositions.
 
-## Decisions for review
+## Decisions (approved by the Coordinator, 2026-11-28)
 
-| # | Decision | Recommendation |
+| # | Decision | Outcome |
 |---|---|---|
-| D1 | Location and isolation: `reference/` with its own solution and CPM file, outside `Atya.slnx`, Microsoft SDKs, package references only | Approve. |
-| D2 | ATYA-075 Done does **not** wait for ATYA-148. A2 asserts the wire shape directly now and adopts the 148 fixture in a follow-up. | Approve. 148 is open, and its producer fix (052) is Deferred. |
-| D3 | The issue also asks for `platform/specs/ATYA-API-TEMPLATE.md` (ServiceDefaults spec: health conventions, middleware order, OTel wiring, starter stack), written from the golden apps | Keep it in 075 as a short spec that cites the reference `Program.cs` files. It is about one page, and ATYA-079 needs it. |
-| D4 | The issue also asks for a new-package admission gate with evidence intake (BM-02) | Reuse the Constitution's existing new-package test (the 8-step proposal and "amend before build"). Add only an issue form in Atya.Roadmap that collects the evidence. Changes in the `platform` repository need the owner. Splitting it into its own issue is also acceptable. |
-| D5 | Candidate leg is advisory, published leg is blocking; currency check is in the evidence run only | Approve, for the reasons above. |
+| D1 | Location and isolation: `reference/` with its own solution and CPM file, outside `Atya.slnx`, Microsoft SDKs, package references only, plus the three packing guards | Approved. |
+| D2 | ATYA-148 has shipped (Governance.Testing 1.2.0): A2 uses `ValidationWireSchema` from the start | Approved; no follow-up step. |
+| D3 | The issue also asks for `platform/specs/ATYA-API-TEMPLATE.md` (ServiceDefaults spec: health conventions, middleware order, OTel wiring, starter stack), written from the golden apps | Approved: in 075, as a short spec that cites the reference `Program.cs` files. |
+| D4 | The issue also asks for a new-package admission gate with evidence intake (BM-02) | Approved: reuse the Constitution's existing new-package test and add only an issue form in Atya.Roadmap. |
+| D5 | Candidate leg is advisory, published leg is blocking; currency, coverage and provenance are checked in the weekly or manual evidence run | Approved. |
 
 ## Risks
 
 | # | Risk | Recommendation |
 |---|---|---|
-| R1 | **Validation divergence on the published set.** The exception path writes an `errors` array and the Result path an object map; Http.Client 2.0.0 reads only the map, so details are silently lost (the evidence behind ATYA-148). The fix (052) is Deferred. | **Owner:** either accept 075 Done with the A3 known-gap test and a recorded caveat (recommended: it keeps 075 independent of Deferred work and makes the gap executable and visible), or un-defer ATYA-052 and let A3 assert the correct behaviour. The golden apps validate through `Result`s, which is the working path, and the README says why. |
-| R2 | The golden apps turn into a de facto template or a maintenance burden | Keep them to about 10 endpoints and handlers. The README states "reference composition, not a template; templates come from ATYA-079". Every scenario maps to a row above; nothing exists only for show. |
-| R3 | Renovate lag means pinned versions trail a release | Currency is checked by the evidence run, not on PRs. The Renovate bump PR is itself a gate run on the new version. |
-| R4 | A breaking major in a library breaks the candidate leg | It is advisory by design. Update the reference app in the same release wave as the major. |
-| R5 | Undocumented behaviour discovered by a scenario (for example the client-abort status in A6) | Record a finding issue and assert only what is documented. 075 implements no library fixes (the issue's "without implementing unapproved fixes"). |
-| R6 | Provenance for versions released before ADR-14 points at archived per-package repositories | Accept the legacy repository and `v<version>` tag. Archived repositories stay readable (ADR-14 reversibility). |
-| R7 | Branch rules are currently absent (see the billing note), so "blocking" cannot be enforced by a required check | The job still fails visibly. Mark it required when rulesets return; owner list. |
-| R8 | Network dependency on nuget.org in the published leg | Acceptable. It is exactly the adopter path. Restore is cached by the lock files. A nuget.org outage is the transient-infrastructure case (re-run). |
-| R9 | `OpenTelemetry.Exporter.InMemory` drifting from the OTel line used by Atya.Diagnostics.OpenTelemetry | Pin it to the same 1.15.x line and group it in Renovate with the OTel packages. |
+| R1 | The golden apps turn into a de facto template or a maintenance burden | Keep them to about 10 endpoints and handlers. The README states "reference composition, not a template; templates come from ATYA-079". Every scenario maps to a row above; nothing exists only for show. |
+| R2 | Renovate lag means pinned versions trail a release | Currency is checked by the evidence run, not on PRs. The Renovate bump PR is itself a gate run on the new version. |
+| R3 | A breaking major in a library breaks the candidate leg | It is advisory by design. Update the reference app in the same release wave as the major. |
+| R4 | Undocumented behaviour discovered by a scenario (for example the client-abort status in A6) | Record a finding issue and assert only what is documented. 075 implements no library fixes (the issue's "without implementing unapproved fixes"). |
+| R5 | Provenance for versions released before ADR-14 points at archived per-package repositories | Accept the legacy repository and `v<version>` tag. Archived repositories stay readable (ADR-14 reversibility). |
+| R6 | Branch rules are currently absent (see the billing note), so "blocking" cannot be enforced by a required check | The job still fails visibly. Mark it required when rulesets return; owner list. |
+| R7 | Network dependency on nuget.org in the published leg | Acceptable. It is exactly the adopter path. Restore is cached by the lock files. A nuget.org outage is the transient-infrastructure case (re-run). |
+| R8 | `OpenTelemetry.Exporter.InMemory` drifting from the OTel line used by Atya.Diagnostics.OpenTelemetry | Pin it to the same 1.15.x line and group it in Renovate with the OTel packages. |
 
 ## Open questions
 
